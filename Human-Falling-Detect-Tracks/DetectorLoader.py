@@ -20,6 +20,7 @@ class TinyYOLOv3_onecls(object):
         conf_thres: (float) Minimum Confidence threshold of predicted bboxs to cut off.,
         device: (str) Device to load the model on 'cpu' or 'cuda'.
     """
+    
     def __init__(self,
                  input_size=416,
                  config_file='Models/yolo-tiny-onecls/yolov3-tiny-onecls.cfg',
