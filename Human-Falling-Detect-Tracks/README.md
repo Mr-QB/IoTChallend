@@ -30,11 +30,11 @@ frames by hand for training ST-GCN model.
 
 ## Pre-Trained Models
 
-- Tiny-YOLO oneclass - [.pth](https://drive.google.com/file/d/1obEbWBSm9bXeg10FriJ7R2cGLRsg-AfP/view?usp=sharing),
-[.cfg](https://drive.google.com/file/d/19sPzBZjAjuJQ3emRteHybm2SG25w9Wn5/view?usp=sharing)
-- SPPE FastPose (AlphaPose) - [resnet101](https://drive.google.com/file/d/1N2MgE1Esq6CKYA6FyZVKpPwHRyOCrzA0/view?usp=sharing),
-[resnet50](https://drive.google.com/file/d/1IPfCDRwCmQDnQy94nT1V-_NVtTEi4VmU/view?usp=sharing)
-- ST-GCN action recognition - [tsstg](https://drive.google.com/file/d/1mQQ4JHe58ylKbBqTjuKzpwN2nwKOWJ9u/view?usp=sharing)
+- Tiny-YOLO oneclass - [.pth](https://drive.google.com/file/d/1v6-KSAWDazLhsPNl7S2ZUaceF7JMbdHN/view?usp=sharing),
+[.cfg](https://drive.google.com/file/d/1ex8dZvfP5ZDK39evVUPJ00ynDW4j1WSI/view?usp=sharing)
+- SPPE FastPose (AlphaPose) - [resnet101](https://drive.google.com/file/d/1o91WrtqykDz5mRDdw23aV6gpFdx1zrU4/view?usp=sharing),
+[resnet50](https://drive.google.com/file/d/1P8GvHTV_CYwbjxf90D_8AlYAmhGGdi_d/view?usp=sharing)
+- ST-GCN action recognition - [tsstg](https://drive.google.com/file/d/14ZWhniLPH2fgMW4ZHDoXEuv-V9TlbMM7/view?usp=sharing)
 
 ## Basic Use
 
