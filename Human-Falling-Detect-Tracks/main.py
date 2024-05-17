@@ -5,6 +5,7 @@ import torch
 import argparse
 import numpy as np
 
+
 from Detection.Utils import ResizePadding
 from CameraLoader import CamLoader, CamLoader_Q
 from DetectorLoader import TinyYOLOv3_onecls
@@ -15,7 +16,7 @@ from fn import draw_single
 from Track.Tracker import Detection, Tracker
 from ActionsEstLoader import TSSTG
 
-#source = '../Data/test_video/test7.mp4'
+# source = 'Data/fallData/Fall2_Cam4.avi'
 #source = '../Data/falldata/Home/Videos/video (2).avi'  # hard detect
 # source = '../Data/falldata/Home/Videos/video (1).avi'
 source = "0"
