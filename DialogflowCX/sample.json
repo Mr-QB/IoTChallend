@@ -1,0 +1,35 @@
+{
+    "detectIntentResponseId": "4b844f5e-2ae3-4f79-89ac-b78dfea45998",
+    "intentInfo": {
+        "lastMatchedIntent": "projects/smart-speaker-6d8b5/locations/us-central1/agents/45a9cd48-f825-4262-80f8-cd818658e078/intents/7ceefce2-1168-4117-8732-9af613235a10",
+        "parameters": {
+            "asktime": {
+                "originalValue": "m\u1ea5y gi\u1edd",
+                "resolvedValue": "Gi\u1edd n\u00e0o"
+            }
+        },
+        "displayName": "H\u1ecfi th\u1eddi gian",
+        "confidence": 0.65985984
+    },
+    "pageInfo": {
+        "currentPage": "projects/smart-speaker-6d8b5/locations/us-central1/agents/45a9cd48-f825-4262-80f8-cd818658e078/flows/00000000-0000-0000-0000-000000000000/pages/878d6fc2-af5d-40f8-8ad7-816bbfd1cc32",
+        "formInfo": {},
+        "displayName": "H\u1ecfi th\u1eddi gian "
+    },
+    "sessionInfo": {
+        "session": "projects/smart-speaker-6d8b5/locations/us-central1/agents/45a9cd48-f825-4262-80f8-cd818658e078/sessions/2ba766-6c4-fb6-f1e-a1ecbcb7f",
+        "parameters": {
+            "asktime": "Gi\u1edd n\u00e0o"
+        }
+    },
+    "fulfillmentInfo": {
+        "tag": "askTime"
+    },
+    "text": "b\u00e2y gi\u1edd l\u00e0 m\u1ea5y gi\u1edd",
+    "languageCode": "vi",
+    "languageInfo": {
+        "inputLanguageCode": "vi",
+        "resolvedLanguageCode": "vi",
+        "confidenceScore": 1.0
+    }
+}
