@@ -1,6 +1,11 @@
 from flask import Flask, request, jsonify
 import json
 from datetime import datetime
+import subprocess
+
+def start_tunnel():
+    command = 'ssh -i key/id_rsa -R iotchallenge.rcuet.id.vn:80:localhost:5000 serveo.net'
+    subprocess.Popen(command, shell=True)
 
 def save_to_json_file(data, filename='DialogflowCX/sample.json'):
     with open(filename, 'w') as json_file:
@@ -39,10 +44,9 @@ def dialogflow():
             messages = f"Bây giờ là {hour} giờ {minute} phút ngày {day} tháng {month} năm {year}"
 
         return responseMgs(messages)
-
-
     
 
 
 if __name__ == "__main__":
+    start_tunnel()
     app.run(host="0.0.0.0", port=5000)
