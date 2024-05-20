@@ -4,7 +4,7 @@ from datetime import datetime
 import subprocess
 
 def start_tunnel():
-    command = 'ssh -i key/id_rsa -R iotchallenge.rcuet.id.vn:80:localhost:5000 serveo.net'
+    command = 'autossh -M 0 -o ServerAliveInterval=60 -i DialogflowCX/key/id_rsa -R iotchallenge.rcuet.id.vn:80:localhost:5000 serveo.net'
     subprocess.Popen(command, shell=True)
 
 def save_to_json_file(data, filename='DialogflowCX/sample.json'):
