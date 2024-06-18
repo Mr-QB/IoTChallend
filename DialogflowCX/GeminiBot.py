@@ -12,7 +12,7 @@ import os
 import google.generativeai as genai
 
 os.environ["GEMINI_API_KEY"] = (
-    "AIzaSyAbQ5BroQuAYq5ZVKKLQv1O4L4OP80QrJQ"  # lấy ở đây nhé https://aistudio.google.com/app/apikey
+    "......"  # lấy ở đây nhé https://aistudio.google.com/app/apikey
 )
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
