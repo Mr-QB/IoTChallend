@@ -12,7 +12,7 @@ import os
 import google.generativeai as genai
 
 os.environ["GEMINI_API_KEY"] = (
-    ".........."  # lấy ở đây nhé https://aistudio.google.com/app/apikey
+    "AIzaSyAbQ5BroQuAYq5ZVKKLQv1O4L4OP80QrJQ"  # lấy ở đây nhé https://aistudio.google.com/app/apikey
 )
 
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
@@ -37,6 +37,6 @@ model = genai.GenerativeModel(
 chat_session = model.start_chat(history=[])
 
 while True:
-    msg = input("Nhập gì đó.....")
+    msg = input("Nhập gì đó.....: ")
     response = chat_session.send_message(msg)
     print(response.text)
