@@ -35,8 +35,19 @@ client.username_pw_set(username, password)
 client.on_connect = on_connect
 # Kết nối tới MQTT Broker
 client.connect(broker, port, 60)
-topic = input("nhap vao topic: ")
-msg = input("nhap vao msg: ")
+
+# json_file =  chatbot......()
+
+# ten_phong = 'abc'
+# ten_thiet_bi = "den"
+trang_thai = "bat"
+id_thietbi = "den_2"
+
+# id_thietbi = data[ten_phong][ten_thiet_bi]
+
+
+topic = "control thiet bi"
+msg = "{} {}".format(id_thietbi, trang_thai)
 client.publish(topic, msg, 0, True)
 # client.subscribe("#")
 # client.on_message = on_message
