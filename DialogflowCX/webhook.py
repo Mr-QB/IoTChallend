@@ -7,14 +7,13 @@ import os
 import google.generativeai as genai
 
 # OpenWeatherMap API key
-API_KEY = "2c430b975eca3a7ccf32915d7a02fb28"
+WEATHER_API_KEY = "2c430b975eca3a7ccf32915d7a02fb28"
+GEMINI_API_KEY = "..." # lấy ở đây nhé https://aistudio.google.com/app/apikey
 
 
 def configGeminiBot():
 
-    os.environ["GEMINI_API_KEY"] = (
-        "......"  # lấy ở đây nhé https://aistudio.google.com/app/apikey
-    )
+    os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
     # Create the model
@@ -82,7 +81,6 @@ app = Flask(__name__)
 def dialogflow():
     data = request.get_json()
     if data:
-        print(data)
         save_to_json_file(data)  # saves a message about the webhook call
         messages = ""
 
@@ -105,12 +103,13 @@ def dialogflow():
 
         elif webhook_tag == "askGemini":
             question = data["text"]
-            print(question)
             messages = callGemini(question)
+            # print(messages)
 
         return responseMgs(messages)
 
 
 if __name__ == "__main__":
+    # callGemini("một cộng một bằng  mấy")
     start_tunnel()
     app.run(host="0.0.0.0", port=5000)
