@@ -1,7 +1,8 @@
 import pyaudio
-import keyboard
-import time
 import wave
+import numpy as np
+import time
+from pynput import keyboard
 
 chunk = 1024
 format = pyaudio.paInt16
@@ -16,20 +17,39 @@ stream = p.open(
 )
 
 frames = []
-print("Press SPACE to start recording")
-keyboard.wait("space")
-print("Recording... Press SPACE to stop.")
-time.sleep(0.2)
+recording = False
 
-while True:
+
+def on_press(key):
+    global recording
+    try:
+        if key.char == " ":
+            if not recording:
+                print("Recording... Press SPACE to stop.")
+                recording = True
+            else:
+                print("Stopping recording...")
+                recording = False
+                return False
+    except AttributeError:
+        pass
+
+
+listener = keyboard.Listener(on_press=on_press)
+listener.start()
+
+print("Press SPACE to start recording")
+
+# Chờ cho đến khi bắt đầu ghi âm
+while not recording:
+    time.sleep(0.1)
+
+while recording:
     try:
         data = stream.read(chunk)
         frames.append(data)
-    except KeyboardInterrupt:
-        break
-    if keyboard.is_pressed("space"):
-        print("stopping recording")
-        time.sleep(0.2)
+    except Exception as e:
+        print(f"Error: {e}")
         break
 
 stream.stop_stream()
