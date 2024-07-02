@@ -146,21 +146,24 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         while recording:
             try:
                 data = stream.read(chunk)
-                frames.append(data)
+                audio_input = session.AudioInput(audio=data)
+                query_input = session.QueryInput(audio=audio_input)
+                yield session.StreamingDetectIntentRequest(query_input=query_input)
+                # frames.append(data)
             except Exception as e:
                 print(f"Error: {e}")
                 break
         
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-        for frame in frames:
+        # stream.stop_stream()
+        # stream.close()
+        # p.terminate()
+        # for frame in frames:
             # audio_input = dialogflow.InputAudio(audio=frame)
             # yield dialogflow.StreamingDetectIntentRequest(input_audio=audio_input)
 
-            audio_input = session.AudioInput(audio=frame)
-            query_input = session.QueryInput(audio=audio_input)
-            yield session.StreamingDetectIntentRequest(query_input=query_input)
+            # audio_input = session.AudioInput(audio=frame)
+            # query_input = session.QueryInput(audio=audio_input)
+            # yield session.StreamingDetectIntentRequest(query_input=query_input)
 
         # with open(audio_file_path, "rb") as audio_file:
         #     while True:
