@@ -31,6 +31,38 @@ from google.cloud.dialogflowcx_v3beta1.services.sessions import SessionsClient
 from google.cloud.dialogflowcx_v3beta1.types import audio_config
 from google.cloud.dialogflowcx_v3beta1.types import session
 
+import pyaudio
+import wave
+from pynput import keyboard
+
+p = pyaudio.PyAudio()
+
+stream = p.open(
+    format=format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk
+)
+
+frames = []
+recording = False
+
+
+def on_press(key):
+    global recording
+    try:
+        if key.char == " ":
+            if not recording:
+                print("Recording... Press SPACE to stop.")
+                recording = True
+            else:
+                print("Stopping recording...")
+                recording = False
+                return False
+    except AttributeError:
+        pass
+
+listener = keyboard.Listener(on_press=on_press)
+listener.start()
+
+
 
 # [START dialogflow_detect_intent_stream]
 def run_sample():
@@ -102,15 +134,37 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         # Here we are reading small chunks of audio data from a local
         # audio file.  In practice these chunks should come from
         # an audio input device.
-        with open(audio_file_path, "rb") as audio_file:
-            while True:
-                chunk = audio_file.read(4096)
-                if not chunk:
-                    break
-                # The later requests contains audio data.
-                audio_input = session.AudioInput(audio=chunk)
-                query_input = session.QueryInput(audio=audio_input)
-                yield session.StreamingDetectIntentRequest(query_input=query_input)
+
+        print("Press SPACE to start recording")
+
+        while not recording:
+            time.sleep(0.1)
+
+        while recording:
+            try:
+                data = stream.read(chunk)
+                frames.append(data)
+            except Exception as e:
+                print(f"Error: {e}")
+                break
+        
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+
+        audio_input = session.AudioInput(audio=frames)
+        query_input = session.QueryInput(audio=audio_input)
+        yield session.StreamingDetectIntentRequest(query_input=query_input)
+
+        # with open(audio_file_path, "rb") as audio_file:
+        #     while True:
+        #         chunk = audio_file.read(4096)
+        #         if not chunk:
+        #             break
+        #         # The later requests contains audio data.
+        #         audio_input = session.AudioInput(audio=chunk)
+        #         query_input = session.QueryInput(audio=audio_input)
+        #         yield session.StreamingDetectIntentRequest(query_input=query_input)
 
     responses = session_client.streaming_detect_intent(requests=request_generator())
 
