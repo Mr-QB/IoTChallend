@@ -152,7 +152,7 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         max_silence_duration = 10  # Maximum time allowed without sound (seconds)
         while True:
             try:
-                print(no_sound_time,max_silence_duration * (rate // chunk),energy)
+                
                 data = stream.read(chunk)
                 # detect human sounds
                 audio_data = np.frombuffer(data, dtype=np.int16) 
@@ -168,6 +168,7 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
                 audio_input = session.AudioInput(audio=data)
                 query_input = session.QueryInput(audio=audio_input)
                 yield session.StreamingDetectIntentRequest(query_input=query_input)
+                print(no_sound_time,max_silence_duration * (rate // chunk),energy)
             except Exception as e:
                 print(f"Error: {e}")
                 break
