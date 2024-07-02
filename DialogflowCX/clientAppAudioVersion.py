@@ -34,6 +34,7 @@ from google.cloud.dialogflowcx_v3beta1.types import session
 import pyaudio
 import wave
 from pynput import keyboard
+import numpy as np
 import time 
 
 p = pyaudio.PyAudio()
@@ -49,6 +50,11 @@ stream = p.open(
 
 frames = []
 recording = False
+
+def rms_energy(audio_data):
+    # Calculate the RMS energy of the audio data.
+    rms = np.sqrt(np.mean(np.square(audio_data), axis=None))
+    return rms
 
 def on_press(key):
     global recording
@@ -149,31 +155,19 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
                 audio_input = session.AudioInput(audio=data)
                 query_input = session.QueryInput(audio=audio_input)
                 yield session.StreamingDetectIntentRequest(query_input=query_input)
-                # frames.append(data)
+
+                # detect human sounds
+                threshold_energy = 1000
+                audio_data = np.frombuffer(data, dtype=np.int16) 
+                energy = rms_energy(audio_data)
+                if energy < threshold_energy:
+                    print("Không phát hiện âm thanh người nói. Dừng ghi âm...")
+                    recording = False
+                    break
             except Exception as e:
                 print(f"Error: {e}")
                 break
         
-        # stream.stop_stream()
-        # stream.close()
-        # p.terminate()
-        # for frame in frames:
-            # audio_input = dialogflow.InputAudio(audio=frame)
-            # yield dialogflow.StreamingDetectIntentRequest(input_audio=audio_input)
-
-            # audio_input = session.AudioInput(audio=frame)
-            # query_input = session.QueryInput(audio=audio_input)
-            # yield session.StreamingDetectIntentRequest(query_input=query_input)
-
-        # with open(audio_file_path, "rb") as audio_file:
-        #     while True:
-        #         chunk = audio_file.read(4096)
-        #         if not chunk:
-        #             break
-        #         # The later requests contains audio data.
-        #         audio_input = session.AudioInput(audio=chunk)
-        #         query_input = session.QueryInput(audio=audio_input)
-        #         yield session.StreamingDetectIntentRequest(query_input=query_input)
 
     responses = session_client.streaming_detect_intent(requests=request_generator())
 
