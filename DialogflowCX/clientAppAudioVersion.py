@@ -53,17 +53,16 @@ recording = False
 def on_press(key):
     global recording
     try:
-        if key.char == " ":
-            if not recording:
+        if key == keyboard.Key.space:
+            if not recording:                                          
                 print("Recording... Press SPACE to stop.")
                 recording = True
             else:
                 print("Stopping recording...")
-                recording = False
+                recording = False  
                 return False
     except AttributeError:
         pass
-
 
 
 # [START dialogflow_detect_intent_stream]
@@ -137,7 +136,6 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         # audio file.  In practice these chunks should come from
         # an audio input device.
 
-        recording = False
 
         listener = keyboard.Listener(on_press=on_press)
         listener.start()
