@@ -23,27 +23,27 @@ recording = False
 def on_press(key):
     global recording
     try:
-        if key.char == " ":
-            if not recording:
+        if key == keyboard.Key.space:
+            if not recording:                                          
                 print("Recording... Press SPACE to stop.")
                 recording = True
             else:
                 print("Stopping recording...")
-                recording = False
+                recording = False  
                 return False
     except AttributeError:
         pass
 
 
 listener = keyboard.Listener(on_press=on_press)
-listener.start()
+listener.start()  
 
 print("Press SPACE to start recording")
 
 # Chờ cho đến khi bắt đầu ghi âm
 while not recording:
     time.sleep(0.1)
-
+    
 while recording:
     try:
         data = stream.read(chunk)
