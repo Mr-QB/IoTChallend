@@ -173,22 +173,27 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
                 print(f"Error: {e}")
                 break
         print("true")
-        
+    
+    while True:
 
-    responses = session_client.streaming_detect_intent(requests=request_generator())
-
-    print("=" * 20)
-    for response in responses:
-        print(f'Intermediate transcript: "{response.recognition_result.transcript}".')
-
-    # Note: The result from the last response is the final transcript along
-    # with the detected content.
-    response = response.detect_intent_response
-    print(f"Query text: {response.query_result.transcript}")
-    response_messages = [
-        " ".join(msg.text.text) for msg in response.query_result.response_messages
-    ]
-    print(f"Response text: {' '.join(response_messages)}\n")
+        responses = session_client.streaming_detect_intent(requests=request_generator())
+        chatbot = False
+        print("=" * 20)
+        for response in responses:
+            transcript = response.recognition_result.transcript
+            transcript_lower = transcript.lower()
+            if "xin chào" in transcript_lower:
+                chatbot = True
+            print(f'Intermediate transcript: "{response.recognition_result.transcript}".')
+        if chatbot:
+        # Note: The result from the last response is the final transcript along
+        # with the detected content.
+            response = response.detect_intent_response
+            print(f"Query text: {response.query_result.transcript}")
+            response_messages = [
+                " ".join(msg.text.text) for msg in response.query_result.response_messages
+            ]
+            print(f"Response text: {' '.join(response_messages)}\n")
 
 
 # [END dialogflow_detect_intent_stream]
