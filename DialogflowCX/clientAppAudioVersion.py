@@ -56,19 +56,19 @@ def rms_energy(audio_data):
     rms = np.sqrt(np.mean(np.square(audio_data), axis=None))
     return rms
 
-def on_press(key):
-    global recording
-    try:
-        if key == keyboard.Key.space:
-            if not recording:                                          
-                print("Recording... Press SPACE to stop.")
-                recording = True
-            else:
-                print("Stopping recording...")
-                recording = False  
-                return False
-    except AttributeError:
-        pass
+# def on_press(key):
+#     global recording
+#     try:
+#         if key == keyboard.Key.space:
+#             if not recording:                                          
+#                 print("Recording... Press SPACE to stop.")
+#                 recording = True
+#             else:
+#                 print("Stopping recording...")
+#                 recording = False  
+#                 return False
+#     except AttributeError:
+#         pass
 
 
 # [START dialogflow_detect_intent_stream]
@@ -143,22 +143,18 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         # an audio input device.
 
 
-        listener = keyboard.Listener(on_press=on_press)
-        listener.start()
-        print("Press SPACE to start recording")
-        while not recording:
-            time.sleep(0.1)
+        # print("Press SPACE to start recording")
+        # while not recording:
+        #     time.sleep(0.1)
 
         no_sound_time = 0
-        threshold_energy = 1000  # Set sound energy threshold
-        max_silence_duration = 1  # Maximum time allowed without sound (seconds)
-        while recording:
-            
+        threshold_energy = 100  # Set sound energy threshold
+        max_silence_duration = 10  # Maximum time allowed without sound (seconds)
+        while True:
             try:
                 print(no_sound_time,max_silence_duration * (rate // chunk),energy)
                 data = stream.read(chunk)
                 # detect human sounds
-                threshold_energy = 1000
                 audio_data = np.frombuffer(data, dtype=np.int16) 
                 energy = rms_energy(audio_data)
                 if energy < threshold_energy:
