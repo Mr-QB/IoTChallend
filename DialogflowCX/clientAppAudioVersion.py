@@ -41,6 +41,7 @@ p = pyaudio.PyAudio()
 channels = 1
 chunk = 1024
 rate = 24000
+format = pyaudio.paInt16
 
 stream = p.open(
     format=format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk
