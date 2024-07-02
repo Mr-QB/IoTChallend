@@ -155,7 +155,7 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         stream.close()
         p.terminate()
 
-        audio_input = session.AudioInput(audio=frames)
+        audio_input = session.AudioInput(audio=data)
         query_input = session.QueryInput(audio=audio_input)
         yield session.StreamingDetectIntentRequest(query_input=query_input)
 
