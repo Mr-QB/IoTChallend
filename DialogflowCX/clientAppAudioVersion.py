@@ -50,7 +50,6 @@ stream = p.open(
 frames = []
 recording = False
 
-
 def on_press(key):
     global recording
     try:
@@ -138,7 +137,8 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         # audio file.  In practice these chunks should come from
         # an audio input device.
 
-        
+        recording = False
+
         listener = keyboard.Listener(on_press=on_press)
         listener.start()
         print("Press SPACE to start recording")
