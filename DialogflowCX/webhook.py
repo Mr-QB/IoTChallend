@@ -8,7 +8,7 @@ import google.generativeai as genai
 
 # OpenWeatherMap API key
 WEATHER_API_KEY = "2c430b975eca3a7ccf32915d7a02fb28"
-GEMINI_API_KEY = "..." # lấy ở đây nhé https://aistudio.google.com/app/apikey
+GEMINI_API_KEY = "AIzaSyA0OoAfMr0qrBAdgJQ-TnM9dkWMDztKT2Q" # lấy ở đây nhé https://aistudio.google.com/app/apikey
 
 
 def configGeminiBot():
