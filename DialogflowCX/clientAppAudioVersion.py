@@ -152,8 +152,6 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         while recording:
             try:
                 data = stream.read(chunk)
-                
-
                 # detect human sounds
                 threshold_energy = 1000
                 audio_data = np.frombuffer(data, dtype=np.int16) 
@@ -168,6 +166,7 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
             except Exception as e:
                 print(f"Error: {e}")
                 break
+        print("true")
         
 
     responses = session_client.streaming_detect_intent(requests=request_generator())
