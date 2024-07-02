@@ -152,9 +152,7 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         while recording:
             try:
                 data = stream.read(chunk)
-                audio_input = session.AudioInput(audio=data)
-                query_input = session.QueryInput(audio=audio_input)
-                yield session.StreamingDetectIntentRequest(query_input=query_input)
+                
 
                 # detect human sounds
                 threshold_energy = 1000
@@ -164,6 +162,9 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
                     print("Stopping recording...")
                     recording = False
                     break
+                audio_input = session.AudioInput(audio=data)
+                query_input = session.QueryInput(audio=audio_input)
+                yield session.StreamingDetectIntentRequest(query_input=query_input)
             except Exception as e:
                 print(f"Error: {e}")
                 break
