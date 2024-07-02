@@ -153,7 +153,9 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         threshold_energy = 1000  # Set sound energy threshold
         max_silence_duration = 1  # Maximum time allowed without sound (seconds)
         while recording:
+            
             try:
+                print(no_sound_time,max_silence_duration * (rate // chunk),energy)
                 data = stream.read(chunk)
                 # detect human sounds
                 threshold_energy = 1000
