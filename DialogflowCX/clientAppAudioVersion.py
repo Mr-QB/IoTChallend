@@ -65,9 +65,6 @@ def on_press(key):
     except AttributeError:
         pass
 
-listener = keyboard.Listener(on_press=on_press)
-listener.start()
-
 
 
 # [START dialogflow_detect_intent_stream]
@@ -141,8 +138,10 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         # audio file.  In practice these chunks should come from
         # an audio input device.
 
+        
+        listener = keyboard.Listener(on_press=on_press)
+        listener.start()
         print("Press SPACE to start recording")
-
         while not recording:
             time.sleep(0.1)
 
