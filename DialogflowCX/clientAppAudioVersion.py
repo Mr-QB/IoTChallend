@@ -149,6 +149,9 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         while not recording:
             time.sleep(0.1)
 
+        no_sound_time = 0
+        threshold_energy = 1000  # Set sound energy threshold
+        max_silence_duration = 1  # Maximum time allowed without sound (seconds)
         while recording:
             try:
                 data = stream.read(chunk)
@@ -157,9 +160,13 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
                 audio_data = np.frombuffer(data, dtype=np.int16) 
                 energy = rms_energy(audio_data)
                 if energy < threshold_energy:
+                    no_sound_time += 1
+                else:
+                    no_sound_time = 0
+                if no_sound_time > max_silence_duration * (rate // chunk):
                     print("Stopping recording...")
-                    recording = False
                     break
+
                 audio_input = session.AudioInput(audio=data)
                 query_input = session.QueryInput(audio=audio_input)
                 yield session.StreamingDetectIntentRequest(query_input=query_input)
