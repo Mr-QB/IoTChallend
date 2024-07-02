@@ -161,7 +161,7 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
                 audio_data = np.frombuffer(data, dtype=np.int16) 
                 energy = rms_energy(audio_data)
                 if energy < threshold_energy:
-                    print("Không phát hiện âm thanh người nói. Dừng ghi âm...")
+                    print("Stopping recording...")
                     recording = False
                     break
             except Exception as e:
