@@ -26,6 +26,8 @@ import argparse
 import uuid
 import os
 
+import json
+
 from google.cloud.dialogflowcx_v3beta1.services.agents import AgentsClient
 from google.cloud.dialogflowcx_v3beta1.services.sessions import SessionsClient
 from google.cloud.dialogflowcx_v3beta1.types import audio_config
@@ -88,12 +90,19 @@ def run_sample():
 
     detect_intent_stream(agent, session_id, audio_file_path, language_code)
 
+def save_to_json_file(data, filename="DialogflowCX/sample.json"):
+    with open(filename, "w") as json_file:
+        json.dump(data, json_file, indent=4)
+
+
 
 def detect_intent_stream(agent, session_id, audio_file_path, language_code):
     """Returns the result of detect intent with streaming audio as input.
 
     Using the same `session_id` between requests allows continuation
     of the conversation."""
+
+    chatbot = False
     session_path = f"{agent}/sessions/{session_id}"
     print(f"Session path: {session_path}\n")
     client_options = None
@@ -148,8 +157,8 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
         #     time.sleep(0.1)
 
         no_sound_time = 0
-        threshold_energy = 100  # Set sound energy threshold
-        max_silence_duration = 10  # Maximum time allowed without sound (seconds)
+        threshold_energy = 150  # Set sound energy threshold
+        max_silence_duration = 3.5  # Maximum time allowed without sound (seconds)
         while True:
             try:
                 
@@ -168,7 +177,7 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
                 audio_input = session.AudioInput(audio=data)
                 query_input = session.QueryInput(audio=audio_input)
                 yield session.StreamingDetectIntentRequest(query_input=query_input)
-                print(no_sound_time,max_silence_duration * (rate // chunk),energy)
+                # print(no_sound_time,max_silence_duration * (rate // chunk),energy)
             except Exception as e:
                 print(f"Error: {e}")
                 break
@@ -177,12 +186,12 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
     while True:
 
         responses = session_client.streaming_detect_intent(requests=request_generator())
-        chatbot = False
+
         print("=" * 20)
         for response in responses:
             transcript = response.recognition_result.transcript
             transcript_lower = transcript.lower()
-            if "xin chào" in transcript_lower:
+            if "vừng ơi" in transcript_lower:
                 chatbot = True
             print(f'Intermediate transcript: "{response.recognition_result.transcript}".')
         if chatbot:
@@ -193,6 +202,7 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
             response_messages = [
                 " ".join(msg.text.text) for msg in response.query_result.response_messages
             ]
+            # save_to_json_file(response)
             print(f"Response text: {' '.join(response_messages)}\n")
 
 

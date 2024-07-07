@@ -102,7 +102,7 @@ def dialogflow():
             messages = get_weather(city)
 
         elif webhook_tag == "askGemini":
-            question = data["text"]
+            question = data["transcript"]
             messages = callGemini(question)
             # print(messages)
 

@@ -6,8 +6,8 @@ from pynput import keyboard
 
 chunk = 1024
 format = pyaudio.paInt16
-channels = 2
-rate = 44100
+channels = 1
+rate = 24000
 Output_Filename = "Recorded.wav"
 
 p = pyaudio.PyAudio()
