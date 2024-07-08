@@ -1,35 +1,16 @@
 {
-    "detectIntentResponseId": "817825f1-ccdd-45e0-be4c-5e8699d48083",
-    "intentInfo": {
-        "lastMatchedIntent": "projects/citric-goal-343716/locations/asia-northeast1/agents/8e648ef8-f318-4925-b99c-6242e5f802e7/intents/2bd7a613-3f2f-493e-aed2-86aac499d7b8",
-        "parameters": {
-            "hoithoigian": {
-                "originalValue": "m\u1ea5y gi\u1edd",
-                "resolvedValue": "m\u1ea5y gi\u1edd"
-            }
-        },
-        "displayName": "H\u1ecfi th\u1eddi gian",
-        "confidence": 1.0
-    },
+    "detectIntentResponseId": "6e2537f0-08f2-4a73-9bbc-f7fef1fea14a",
     "pageInfo": {
-        "currentPage": "projects/citric-goal-343716/locations/asia-northeast1/agents/8e648ef8-f318-4925-b99c-6242e5f802e7/flows/00000000-0000-0000-0000-000000000000/pages/392f3c0c-375d-442a-8ef0-6cd2a9a09e40",
-        "formInfo": {},
-        "displayName": "H\u1ecfi th\u1eddi gian"
+        "currentPage": "projects/citric-goal-343716/locations/asia-northeast1/agents/8e648ef8-f318-4925-b99c-6242e5f802e7/flows/00000000-0000-0000-0000-000000000000/pages/START_PAGE",
+        "displayName": "Start Page"
     },
     "sessionInfo": {
-        "session": "projects/citric-goal-343716/locations/asia-northeast1/agents/8e648ef8-f318-4925-b99c-6242e5f802e7/sessions/64e7b5-469-285-848-cd52ee6c8",
-        "parameters": {
-            "hoithoigian": "m\u1ea5y gi\u1edd"
-        }
+        "session": "projects/citric-goal-343716/locations/asia-northeast1/agents/8e648ef8-f318-4925-b99c-6242e5f802e7/sessions/ee5d334c-4494-417a-a279-12d4da4103b3"
     },
     "fulfillmentInfo": {
-        "tag": "askTime"
+        "tag": "askGemini"
     },
-    "text": "b\u00e2y gi\u1edd l\u00e0 m\u1ea5y gi\u1edd",
+    "transcript": "m\u1ed9t c\u1ed9ng m\u1ed9t b\u1eb1ng m\u1ea5y",
     "languageCode": "vi",
-    "languageInfo": {
-        "inputLanguageCode": "vi",
-        "resolvedLanguageCode": "vi",
-        "confidenceScore": 1.0
-    }
+    "languageInfo": {}
 }
