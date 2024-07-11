@@ -40,7 +40,9 @@ class AppControl:
             return "Message sent successfully"
 
         # Run the Flask server in a separate thread
-        Thread(target=lambda: self.app.run(debug=True, use_reloader=False)).start()
+        Thread(
+            target=lambda: self.app.run(debug=True, use_reloader=False, host="0.0.0.0")
+        ).start()
 
 
 if __name__ == "__main__":
