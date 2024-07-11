@@ -42,6 +42,7 @@ class AppControl:
             json_data = request.get_json()
             topic = json_data.get("topic")
             msg = json_data.get("msg")
+            print("+++++\n", topic, msg)
             self.sentMQTTMsg(topic, msg)
             return "Message sent successfully"
 
