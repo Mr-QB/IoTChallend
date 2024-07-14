@@ -9,10 +9,6 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     DateTime currentTime = DateTime.now();
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Smart Home'),
-      //   backgroundColor: Colors.blue[900],
-      // ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(16.0),
