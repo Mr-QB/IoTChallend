@@ -42,9 +42,13 @@ class ForgotPasswordPage extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // TODO: Implement reset password logic
-                // Typically, you would send a reset password email or navigate back
                 Navigator.pop(context); // Go back to the previous screen
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'Chức năng này tạm thời không sử dụng được, hãy thử lại sau.'),
+                  ),
+                );
               },
               child: Text('Đặt lại mật khẩu'),
             ),

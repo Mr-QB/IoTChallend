@@ -60,17 +60,24 @@ class AppControl:
             json_data = request.get_json()
             username = json_data.get("username")
             password = json_data.get("password")
-            if username == "ac":
+
+            query = {"username": username, "password": password}
+
+            if self.users_database.count_documents(query) > 0:
                 return jsonify({"message": "Login successful"}), 200
             else:
                 return jsonify({"message": "Invalid credentials"}), 401
 
-        @self.app.route("/registers", methods=["POST"])
+        @self.app.route("/register", methods=["POST"])
         def createUser():
             json_data = request.get_json()
             username = json_data.get("username")
             password = json_data.get("password")
             email = json_data.get("email")
+
+            query = {"username": username}
+            if self.users_database.count_documents(query) > 0:
+                return jsonify({"message": "Username already exists"}), 402
 
             data_write = {"username": username, "password": password, "email": email}
             try:

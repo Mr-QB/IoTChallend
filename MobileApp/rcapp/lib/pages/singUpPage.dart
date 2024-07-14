@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rcapp/config.dart';
+import 'loginPage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -13,26 +14,57 @@ class SignUpPage extends StatelessWidget {
     String password = _password.text.trim();
     String email = _email.text.trim();
 
-    final response = await http.post(
-      Uri.parse(AppConfig.http_url + "/register"),
-      headers: {
-        'Content-Type': 'application/json', // Thiết lập loại nội dung là JSON
-      },
-      body: jsonEncode({
-        'username': username,
-        'password': password,
-        'email': email,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      // message = '';
-    } else {
+    if (username == "") {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Xảy ra lỗi khi đăng ký người dùng mới'),
+          content: Text('Tên đăng nhập trống, vui lòng cập nhật'),
         ),
       );
+    } else if (password == "") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Mật khẩu trống, vui lòng cập nhật'),
+        ),
+      );
+    } else if (email == "") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Email trống, vui lòng cập nhật'),
+        ),
+      );
+    } else {
+      final response = await http.post(
+        Uri.parse(AppConfig.http_url + "/register"),
+        headers: {
+          'Content-Type': 'application/json', // Thiết lập loại nội dung là JSON
+        },
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+          'email': email,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Đăng ký người dùng mới thành công.'),
+          ),
+        );
+      } else if (response.statusCode == 402) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Tên người dùng đã tồn tại'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Xảy ra lỗi khi đăng ký người dùng mới.'),
+          ),
+        );
+      }
     }
   }
 
