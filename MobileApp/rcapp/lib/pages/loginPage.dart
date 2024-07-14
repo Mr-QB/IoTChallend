@@ -1,9 +1,41 @@
 import 'package:flutter/material.dart';
 import 'forgotPasswordPage.dart';
 import 'singUpPage.dart';
+import 'package:rcapp/config.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+final TextEditingController _username = TextEditingController();
+final TextEditingController _password = TextEditingController();
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
+
+  Future<void> _login(BuildContext context) async {
+    String username = _username.text.trim();
+    String password = _password.text.trim();
+
+    final response = await http.post(
+      Uri.parse(AppConfig.http_url + "/login"),
+      headers: {
+        'Content-Type': 'application/json', // Thiết lập loại nội dung là JSON
+      },
+      body: jsonEncode({
+        'username': username,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // message = '';
+    } else if (response.statusCode == 401) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Tài khoản hoặc mật khẩu sai'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +69,7 @@ class LoginPage extends StatelessWidget {
                 SizedBox(height: 20),
                 // Username field
                 TextFormField(
+                  controller: _username,
                   decoration: InputDecoration(
                     labelText: 'Tên đăng nhập',
                     border: OutlineInputBorder(),
@@ -45,6 +78,7 @@ class LoginPage extends StatelessWidget {
                 SizedBox(height: 10),
                 // Password field
                 TextFormField(
+                  controller: _password,
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Mật khẩu',
@@ -55,7 +89,7 @@ class LoginPage extends StatelessWidget {
                 SizedBox(height: 10),
                 // Sign in button
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => _login(context),
                   child: Text('Đăng nhập'),
                 ),
                 SizedBox(height: 6),
