@@ -4,6 +4,7 @@ import 'singUpPage.dart';
 import 'package:rcapp/config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'homePage.dart';
 
 final TextEditingController _username = TextEditingController();
 final TextEditingController _password = TextEditingController();
@@ -27,7 +28,10 @@ class LoginPage extends StatelessWidget {
     );
 
     if (response.statusCode == 200) {
-      // message = '';
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
     } else if (response.statusCode == 401) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
