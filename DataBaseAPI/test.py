@@ -14,5 +14,5 @@ devices_collection = db["Devices"]  # Tên bộ sưu tập của bạn
 id = randint(1000, 5000)
 cursor = devices_collection.find({})
 
-new_device = {"device_name": "quạt", "room_name": "phòng ngủ", "id": id}
+new_device = {"device_name": "", "room_name": "", "id": id}
 devices_collection.insert_one(new_device)

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rcapp/pages/temperature.dart';
 import 'dart:async';
 import 'dart:core';
+import 'plugPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -79,9 +80,16 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _cardMenu(
-                          icon: 'lib/images/energy.png',
-                          title: 'ENERGY',
-                        ),
+                            icon: 'lib/images/energy.png',
+                            title: 'Plug',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SmartPlug(),
+                                ),
+                              );
+                            }),
                         _cardMenu(
                           onTap: () {
                             Navigator.push(

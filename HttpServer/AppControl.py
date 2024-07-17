@@ -1,6 +1,7 @@
 import json
 import paho.mqtt.client as mqtt
 from flask import Flask, jsonify, request
+from bson import json_util
 import subprocess
 from threading import Thread
 from pymongo import MongoClient
@@ -15,6 +16,7 @@ class AppControl:
         self.client = MongoClient(DATABASEURL)
         self.database = self.client[DATABASENAME]
         self.users_database = self.database["Users"]
+        self.devices_database = self.database["Devices"]
 
     def writeDataBase(self, users_database, data):
         users_database.insert_one(data)
@@ -51,8 +53,8 @@ class AppControl:
             json_data = request.get_json()
             topic = json_data.get("topic")
             msg = json_data.get("msg")
-            print("+++++\n", topic, msg)
-            self.sentMQTTMsg(topic, msg)
+            print("+++\n", topic, msg)
+            # self.sentMQTTMsg(topic, msg)
             return "Message sent successfully"
 
         @self.app.route("/login", methods=["POST"])
@@ -85,6 +87,16 @@ class AppControl:
                 return jsonify({"message": "Registration Success"}), 200
             except:
                 return jsonify({"message": "Registration failed"}), 401
+
+        @self.app.route("/getdevices", methods=["GET"])
+        def getDevicesInfo():
+            query = {"room_name": {"$ne": ""}, "device_name": {"$ne": ""}}
+            if self.devices_database.count_documents(query) > 0:
+                list_devices = list(self.devices_database.find(query, {"_id": 0}))
+                print(json_util.dumps(list_devices))
+                return json_util.dumps(list_devices), 200
+            else:
+                return jsonify({"message": "Invalid credentials"}), 401
 
         # Run the Flask server in a separate thread
         Thread(
