@@ -10,7 +10,7 @@ from config import *
 
 class AppControl:
     def __init__(self):
-        # self.startTunnel()
+        self.startTunnel()
         self.app = Flask(__name__)
 
         self.client = MongoClient(DATABASEURL)
@@ -62,6 +62,7 @@ class AppControl:
             json_data = request.get_json()
             username = json_data.get("username")
             password = json_data.get("password")
+            print(username, password)
 
             query = {"username": username, "password": password}
 
@@ -93,9 +94,17 @@ class AppControl:
             query = {"room_name": {"$ne": ""}, "device_name": {"$ne": ""}}
             if self.devices_database.count_documents(query) > 0:
                 list_devices = list(self.devices_database.find(query, {"_id": 0}))
-                print(json_util.dumps(list_devices))
                 return json_util.dumps(list_devices), 200
             else:
+                return jsonify({"message": "Invalid credentials"}), 401
+
+        @self.app.route("/checkdevicesnotconfig", methods=["GET"])
+        def checkDevicesNotConfig():
+            query = {"$or": [{"room_name": ""}, {"device_name": ""}]}
+            try:
+                list_devices = list(self.devices_database.find(query, {"_id": 0}))
+                return json_util.dumps(list_devices), 200
+            except:
                 return jsonify({"message": "Invalid credentials"}), 401
 
         # Run the Flask server in a separate thread
