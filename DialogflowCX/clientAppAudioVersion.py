@@ -1,108 +1,34 @@
-#!/usr/bin/env python
-
-# Copyright 2023 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-"""DialogFlow API Detect Intent Python sample with audio files processed as an audio stream.
-
-Examples:
-  python detect_intent_stream.py -h
-  python detect_intent_stream.py --agent AGENT \
-  --session-id SESSION_ID --audio-file-path resources/hello.wav
-"""
-
 import argparse
 import uuid
 import os
-
-import json
-
+import time
+import sounddevice as sd
+from recording import record_audio
 from google.cloud.dialogflowcx_v3beta1.services.agents import AgentsClient
 from google.cloud.dialogflowcx_v3beta1.services.sessions import SessionsClient
 from google.cloud.dialogflowcx_v3beta1.types import audio_config
 from google.cloud.dialogflowcx_v3beta1.types import session
 
-import pyaudio
-import wave
-from pynput import keyboard
-import numpy as np
-import time 
+import re
 
-p = pyaudio.PyAudio()
+import unicodedata
+from argparse import ArgumentParser
+from pathlib import Path
 
-channels = 1
-chunk = 1024
-rate = 24000
-format = pyaudio.paInt16
+# import soundfile as sf
 
-stream = p.open(
-    format=format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk
-)
 
-frames = []
-recording = False
-
-def rms_energy(audio_data):
-    # Calculate the RMS energy of the audio data.
-    rms = np.sqrt(np.mean(np.square(audio_data), axis=None))
-    return rms
-
-# def on_press(key):
-#     global recording
-#     try:
-#         if key == keyboard.Key.space:
-#             if not recording:                                          
-#                 print("Recording... Press SPACE to stop.")
-#                 recording = True
-#             else:
-#                 print("Stopping recording...")
-#                 recording = False  
-#                 return False
-#     except AttributeError:
-#         pass
+# from vietTTS.hifigan.mel2wave import mel2wave
+# from vietTTS.nat.config import FLAGS
+# from vietTTS.nat.text2mel import text2mel
 
 
 # [START dialogflow_detect_intent_stream]
-def run_sample():
-    # TODO(developer): Replace these values when running the function
-    project_id = "YOUR-PROJECT-ID"
-    # For more information about regionalization see https://cloud.google.com/dialogflow/cx/docs/how/region
-    location_id = "YOUR-LOCATION-ID"
-    # For more info on agents see https://cloud.google.com/dialogflow/cx/docs/concept/agent
-    agent_id = "YOUR-AGENT-ID"
-    agent = f"projects/{project_id}/locations/{location_id}/agents/{agent_id}"
-    # For more information on sessions see https://cloud.google.com/dialogflow/cx/docs/concept/session
-    session_id = uuid.uuid4()
-    audio_file_path = "YOUR-AUDIO-FILE-PATH"
-    # For more supported languages see https://cloud.google.com/dialogflow/es/docs/reference/language
-    language_code = "en-us"
-
-    detect_intent_stream(agent, session_id, audio_file_path, language_code)
-
-def save_to_json_file(data, filename="DialogflowCX/sample.json"):
-    with open(filename, "w") as json_file:
-        json.dump(data, json_file, indent=4)
-
-
-
-def detect_intent_stream(agent, session_id, audio_file_path, language_code):
+def detect_intent_stream(agent, session_id, audio_data, language_code):
     """Returns the result of detect intent with streaming audio as input.
 
     Using the same `session_id` between requests allows continuation
     of the conversation."""
-
-    chatbot = False
     session_path = f"{agent}/sessions/{session_id}"
     print(f"Session path: {session_path}\n")
     client_options = None
@@ -147,63 +73,44 @@ def detect_intent_stream(agent, session_id, audio_file_path, language_code):
             output_audio_config=output_audio_config,
         )
 
-        # Here we are reading small chunks of audio data from a local
-        # audio file.  In practice these chunks should come from
-        # an audio input device.
+        # Here we are reading chunks of audio data from the recording
+        offset = 0
+        chunk_size = 4096
+        while offset < len(audio_data):
+            chunk = audio_data[offset : offset + chunk_size]
+            offset += chunk_size
+            # The later requests contain audio data.
+            audio_input = session.AudioInput(audio=chunk)
+            query_input = session.QueryInput(audio=audio_input)
+            yield session.StreamingDetectIntentRequest(query_input=query_input)
 
+    responses = session_client.streaming_detect_intent(requests=request_generator())
 
-        # print("Press SPACE to start recording")
-        # while not recording:
-        #     time.sleep(0.1)
+    print("=" * 20)
+    for response in responses:
+        print(f'Intermediate transcript: "{response.recognition_result.transcript}".')
 
-        no_sound_time = 0
-        threshold_energy = 150  # Set sound energy threshold
-        max_silence_duration = 3.5  # Maximum time allowed without sound (seconds)
-        while True:
-            try:
-                
-                data = stream.read(chunk)
-                # detect human sounds
-                audio_data = np.frombuffer(data, dtype=np.int16) 
-                energy = rms_energy(audio_data)
-                if energy < threshold_energy:
-                    no_sound_time += 1
-                else:
-                    no_sound_time = 0
-                if no_sound_time > max_silence_duration * (rate // chunk):
-                    print("Stopping recording...")
-                    break
-
-                audio_input = session.AudioInput(audio=data)
-                query_input = session.QueryInput(audio=audio_input)
-                yield session.StreamingDetectIntentRequest(query_input=query_input)
-                # print(no_sound_time,max_silence_duration * (rate // chunk),energy)
-            except Exception as e:
-                print(f"Error: {e}")
-                break
-        print("true")
-    
-    while True:
-
-        responses = session_client.streaming_detect_intent(requests=request_generator())
-
-        print("=" * 20)
-        for response in responses:
-            transcript = response.recognition_result.transcript
-            transcript_lower = transcript.lower()
-            if "vừng ơi" in transcript_lower:
-                chatbot = True
-            print(f'Intermediate transcript: "{response.recognition_result.transcript}".')
-        if chatbot:
-        # Note: The result from the last response is the final transcript along
-        # with the detected content.
-            response = response.detect_intent_response
-            print(f"Query text: {response.query_result.transcript}")
-            response_messages = [
-                " ".join(msg.text.text) for msg in response.query_result.response_messages
-            ]
-            # save_to_json_file(response)
-            print(f"Response text: {' '.join(response_messages)}\n")
+    # Note: The result from the last response is the final transcript along
+    # with the detected content.
+    response = response.detect_intent_response
+    print(f"Query text: {response.query_result.transcript}")
+    response_messages = [
+        " ".join(msg.text.text) for msg in response.query_result.response_messages
+    ]
+    print(f"Response text: {' '.join(response_messages)}\n")
+    # tts ........
+    # if len(response_messages) > 0:
+    #     mel = text2mel(
+    #         response_messages[0],
+    #         lexicon_fn="DialogflowCX/vietTTS/assets/infore/lexicon.txt",
+    #         silence_duration=0.2,
+    #     )
+    #     # mel = text2mel(text, args.lexicon_file, args.silence_duration)
+    #     wave = mel2wave(mel)
+    #     # print("writing output to file", args.output)
+    #     # sf.write("a.wav", wave, samplerate=16000)
+    #     sd.play(wave, 16000)
+    #     sd.wait()
 
 
 # [END dialogflow_detect_intent_stream]
@@ -215,11 +122,15 @@ if __name__ == "__main__":
     location_id = "asia-northeast1"
     agent_id = "8e648ef8-f318-4925-b99c-6242e5f802e7"
     agent = f"projects/{project_id}/locations/{location_id}/agents/{agent_id}"
-    session_id = uuid.uuid4()
-    texts = ["xin chào"]
-    language_code = "vi-vn"
-    audio_file_path = "DialogflowCX/audio.wav"
+    language_code = "vi-vn"  # Ngôn ngữ tiếng Việt
 
-    detect_intent_stream(
-        agent, session_id, audio_file_path, language_code
-    )
+    while True:
+        session_id = uuid.uuid4()  # Tạo session_id mới cho mỗi lần ghi âm
+        print("Ghi âm bắt đầu...")
+        audio_data = record_audio()  # Ghi âm và nhận dữ liệu âm thanh
+        print("Ghi âm hoàn tất, gửi dữ liệu đến Dialogflow...")
+
+        detect_intent_stream(agent, session_id, audio_data, language_code)
+
+        print("Chờ 2 giây trước khi ghi âm tiếp theo...")
+        time.sleep(2)  # Chờ 5 giây trước khi bắt đầu vòng lặp ghi âm tiếp theo
