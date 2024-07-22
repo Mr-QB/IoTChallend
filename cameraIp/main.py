@@ -1,12 +1,14 @@
 import cv2
-import ffmpegcv
+import os
+
+os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;0"
 
 
 # URL của luồng RTSP
 rtsp_url = "rtsp://admin:Matkhau123@192.168.1.10:554/onvif1"
 
 # Mở luồng RTSP
-cap = ffmpegcv.VideoCapture(rtsp_url)
+cap = cv2.VideoCapture(rtsp_url)
 
 # Kiểm tra xem luồng có được mở thành công không
 if not cap.isOpened():
