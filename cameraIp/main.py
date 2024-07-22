@@ -8,6 +8,7 @@ os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;0"
 rtsp_url = "rtsp://admin:Matkhau123@192.168.1.10:554/onvif1"
 
 # Mở luồng RTSP
+
 cap = cv2.VideoCapture(rtsp_url)
 
 # Kiểm tra xem luồng có được mở thành công không

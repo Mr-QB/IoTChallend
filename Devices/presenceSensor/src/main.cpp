@@ -1,43 +1,16 @@
 // #include <mqttConfig.h>
 #include <mqttConfig.h>
 
-void reconnect()
-{
-  while (!client.connected())
-  {
-    Serial.print("Đang cố gắng kết nối MQTT...");
-    if (client.connect("ESP32Client", mqttUser, mqttPassword))
-    {
-      Serial.println("Đã kết nối");
-      // Đăng ký nếu cần thiết
-      client.subscribe(relay_topic);
-    }
-    else
-    {
-      Serial.print("Thất bại, rc=");
-      Serial.print(client.state());
-      Serial.println(" thử lại sau 5 giây");
-      delay(5000);
-    }
-  }
-}
-
-void callback(char *topic, byte *payload, unsigned int length)
-{
-  // Xử lý thông điệp từ MQTT nếu cần
-}
-
-// void mqttConfig()
-// {
-//   client.publish(config_topic, default_id);
-// }
 void setup()
 {
-
   Serial.begin(115200);
   mySerial.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN); // Cấu hình UART1 9600
-  Serial.println("Kiểm tra cảm biến hiện diện LD2410C");
+  Serial.println("Kiểm tra cảm biến hiện   diện LD2410C");
   strcpy(default_id, generateRandomString(10));
+
+  // Đọc giá trị relay_topic từ EEPROM
+  EEPROM.begin(EEPROM_SIZE);
+  readFromEEPROM();
 
   // Kiểm tra UART
   if (mySerial)
@@ -67,6 +40,7 @@ void setup()
 
 void loop()
 {
+  Serial.println(relay_topic);
   mqttConfig();
   if (!client.connected())
   {
