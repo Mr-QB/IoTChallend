@@ -1,34 +1,33 @@
 import cv2
 import os
 
+# Set OpenCV's FFmpeg capture options to use UDP transport
 os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "rtsp_transport;0"
 
-
-# URL của luồng RTSP
+# URL of the RTSP stream
 rtsp_url = "rtsp://admin:Matkhau123@192.168.1.10:554/onvif1"
 
-# Mở luồng RTSP
-
+# Open the RTSP stream
 cap = cv2.VideoCapture(rtsp_url)
 
-# Kiểm tra xem luồng có được mở thành công không
+# Check if the stream was opened successfully
 if not cap.isOpened():
-    print("Không thể mở luồng RTSP")
+    print("Cannot open RTSP stream")
     exit()
 
-# Đọc và hiển thị từng khung hình từ luồng
+# Read and display each frame from the stream
 while True:
     ret, frame = cap.read()
     if not ret:
-        print("Không thể nhận khung hình từ luồng")
+        print("Cannot receive frame from stream")
         break
 
     cv2.imshow("RTSP Stream", frame)
 
-    # Nhấn 'q' để thoát
+    # Press 'q' to exit
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
-# Giải phóng tài nguyên
+# Release resources
 cap.release()
 cv2.destroyAllWindows()

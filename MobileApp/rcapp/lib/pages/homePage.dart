@@ -8,6 +8,7 @@ import 'plugPage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:rcapp/config.dart';
+import 'scriptPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -38,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<dynamic>> fetchDevices() async {
+    print(AppConfig.http_url);
     final response = await http.get(Uri.parse(AppConfig.http_url +
         "/checkdevicesnotconfig")); // Thay đổi URL nếu cần thiết
     if (response.statusCode == 200) {
@@ -165,8 +167,6 @@ class _HomePageState extends State<HomePage> {
                           },
                           icon: 'lib/images/temperature.png',
                           title: 'TEMPERATURE',
-                          // color: Colors.indigoAccent,
-                          // fontColor: Colors.white,
                         ),
                       ],
                     ),
@@ -177,10 +177,26 @@ class _HomePageState extends State<HomePage> {
                         _cardMenu(
                           icon: 'lib/images/script.png',
                           title: 'SCRIPT',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ScriptsPage(),
+                              ),
+                            );
+                          },
                         ),
                         _cardMenu(
                           icon: 'lib/images/camera.png',
                           title: 'CAMERA',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ScriptsPage(),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
