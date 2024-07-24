@@ -18,9 +18,9 @@ from pathlib import Path
 import soundfile as sf
 
 
-from vietTTS.hifigan.mel2wave import mel2wave
-from vietTTS.nat.config import FLAGS
-from vietTTS.nat.text2mel import text2mel
+from vietTTS.vietTTS.hifigan.mel2wave import mel2wave
+from vietTTS.vietTTS.nat.config import FLAGS
+from vietTTS.vietTTS.nat.text2mel import text2mel
 
 
 # [START dialogflow_detect_intent_stream]
