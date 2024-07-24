@@ -10,7 +10,7 @@ from config import *
 
 class AppControl:
     def __init__(self):
-        self.startTunnel()
+        # self.startTunnel()
         self.app = Flask(__name__)
 
         self.client = MongoClient(DATABASEURL)
@@ -70,6 +70,22 @@ class AppControl:
                 return jsonify({"message": "Login successful"}), 200
             else:
                 return jsonify({"message": "Invalid credentials"}), 401
+
+        @self.app.route("/test", methods=["POST"])
+        def test():
+            json_data = request.get_json()  # Lấy dữ liệu JSON từ yêu cầu
+            if json_data is None:
+                return (
+                    jsonify({"error": "Invalid JSON"}),
+                    400,
+                )  # Trả về lỗi nếu không có dữ liệu JSON
+
+            print(json_data)  # In dữ liệu JSON ra console
+
+            return (
+                jsonify({"message": "Data received successfully"}),
+                200,
+            )  # Trả về phản hồi thành công
 
         @self.app.route("/register", methods=["POST"])
         def createUser():

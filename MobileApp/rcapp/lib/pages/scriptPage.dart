@@ -15,8 +15,8 @@ class _ScriptsPageState extends State<ScriptsPage> {
   List mySmartPlugs = [];
 
   Future<List<dynamic>> fetchDevices() async {
-    final response = await http.get(Uri.parse(
-        AppConfig.http_url + "/getdevices")); // Thay đổi URL nếu cần thiết
+    final response =
+        await http.get(Uri.parse(AppConfig.http_url + "/getdevices"));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -314,6 +314,31 @@ class CustomDialog {
     );
   }
 
+  static Future<void> _sendJsonData(List<Map<String, dynamic>> rows) async {
+    final String url = AppConfig.http_url + "/test";
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final String jsonString = jsonEncode(rows);
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonString,
+      );
+
+      if (response.statusCode == 200) {
+        print('Dữ liệu đã được gửi thành công.');
+      } else {
+        print('Lỗi khi gửi dữ liệu: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Lỗi khi gửi HTTP request: $e');
+    }
+  }
+
   static Widget _buildDialogContent(
     List<Map<String, dynamic>> rows,
     BuildContext context,
@@ -592,9 +617,9 @@ class CustomDialog {
           Spacer(),
           TextButton(
             onPressed: () {
-              // Chuyển danh sách rows thành JSON và in ra console
-              String jsonString = jsonEncode(rows);
-              print('JSON data: $jsonString');
+              CustomDialog._sendJsonData(rows);
+              // String jsonString = jsonEncode(rows);
+              // print('JSON data: $jsonString');
 
               // Đóng dialog sau khi in dữ liệu
               Navigator.of(context).pop();
