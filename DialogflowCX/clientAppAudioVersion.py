@@ -15,12 +15,12 @@ import unicodedata
 from argparse import ArgumentParser
 from pathlib import Path
 
-# import soundfile as sf
+import soundfile as sf
 
 
-# from vietTTS.hifigan.mel2wave import mel2wave
-# from vietTTS.nat.config import FLAGS
-# from vietTTS.nat.text2mel import text2mel
+from vietTTS.hifigan.mel2wave import mel2wave
+from vietTTS.nat.config import FLAGS
+from vietTTS.nat.text2mel import text2mel
 
 
 # [START dialogflow_detect_intent_stream]
@@ -99,18 +99,18 @@ def detect_intent_stream(agent, session_id, audio_data, language_code):
     ]
     print(f"Response text: {' '.join(response_messages)}\n")
     # tts ........
-    # if len(response_messages) > 0:
-    #     mel = text2mel(
-    #         response_messages[0],
-    #         lexicon_fn="DialogflowCX/vietTTS/assets/infore/lexicon.txt",
-    #         silence_duration=0.2,
-    #     )
-    #     # mel = text2mel(text, args.lexicon_file, args.silence_duration)
-    #     wave = mel2wave(mel)
-    #     # print("writing output to file", args.output)
-    #     # sf.write("a.wav", wave, samplerate=16000)
-    #     sd.play(wave, 16000)
-    #     sd.wait()
+    if len(response_messages) > 0:
+        mel = text2mel(
+            response_messages[0],
+            lexicon_fn="vietTTS/assets/infore/lexicon.txt",
+            silence_duration=0.2,
+        )
+        # mel = text2mel(text, args.lexicon_file, args.silence_duration)
+        wave = mel2wave(mel)
+        # print("writing output to file", args.output)
+        # sf.write("a.wav", wave, samplerate=16000)
+        sd.play(wave, 16000)
+        sd.wait()
 
 
 # [END dialogflow_detect_intent_stream]

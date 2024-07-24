@@ -20,7 +20,7 @@ class AttrDict(dict):
 def mel2wave(mel):
     config_file = "assets/hifigan/config.json"
     MAX_WAV_VALUE = 32768.0
-    with open(config_file) as f:
+    with open("vietTTS/assets/infore/hifigan/config.json") as f:
         data = f.read()
     json_config = json.loads(data)
     h = AttrDict(json_config)
@@ -32,7 +32,7 @@ def mel2wave(mel):
 
     rng = next(hk.PRNGSequence(42))
 
-    with open(FLAGS.ckpt_dir / "hk_hifi.pickle", "rb") as f:
+    with open("vietTTS/assets/infore/hifigan/hk_hifi.pickle", "rb") as f:
         params = pickle.load(f)
     aux = {}
     wav, aux = forward.apply(params, aux, rng, mel)

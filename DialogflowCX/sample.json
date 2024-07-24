@@ -1,0 +1,40 @@
+{
+    "detectIntentResponseId": "5f9f4a43-6db7-4081-a621-54a65ca2fd51",
+    "intentInfo": {
+        "lastMatchedIntent": "projects/citric-goal-343716/locations/asia-northeast1/agents/8e648ef8-f318-4925-b99c-6242e5f802e7/intents/0ec880e7-27ab-4f6f-bcdb-eecb5bb62f55",
+        "parameters": {
+            "hoithoitiet": {
+                "originalValue": "th\u1eddi ti\u1ebft",
+                "resolvedValue": "th\u1eddi ti\u1ebft"
+            },
+            "hoithanhpho": {
+                "originalValue": "h\u00e0 n\u1ed9i",
+                "resolvedValue": "H\u00e0 N\u1ed9i"
+            }
+        },
+        "displayName": "H\u1ecfi th\u1eddi ti\u1ebft",
+        "confidence": 0.94958
+    },
+    "pageInfo": {
+        "currentPage": "projects/citric-goal-343716/locations/asia-northeast1/agents/8e648ef8-f318-4925-b99c-6242e5f802e7/flows/00000000-0000-0000-0000-000000000000/pages/60e4cb5d-0705-430a-bd46-6966b5482ca6",
+        "formInfo": {},
+        "displayName": "H\u1ecfi th\u1eddi ti\u1ebft"
+    },
+    "sessionInfo": {
+        "session": "projects/citric-goal-343716/locations/asia-northeast1/agents/8e648ef8-f318-4925-b99c-6242e5f802e7/sessions/6dd162-b1c-685-583-3d6cfd4ba",
+        "parameters": {
+            "hoithanhpho": "H\u00e0 N\u1ed9i",
+            "hoithoitiet": "th\u1eddi ti\u1ebft"
+        }
+    },
+    "fulfillmentInfo": {
+        "tag": "askWeather"
+    },
+    "text": "th\u1eddi ti\u1ebft h\u00e0 n\u1ed9i th\u1ebf n\u00e0o",
+    "languageCode": "vi",
+    "languageInfo": {
+        "inputLanguageCode": "vi",
+        "resolvedLanguageCode": "vi",
+        "confidenceScore": 1.0
+    }
+}

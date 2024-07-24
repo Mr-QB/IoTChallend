@@ -5,9 +5,9 @@ from pathlib import Path
 
 import soundfile as sf
 
-from .hifigan.mel2wave import mel2wave
-from .nat.config import FLAGS
-from .nat.text2mel import text2mel
+from vietTTS.vietTTS.hifigan.mel2wave import mel2wave
+from vietTTS.vietTTS.nat.config import FLAGS
+from vietTTS.vietTTS.nat.text2mel import text2mel
 
 parser = ArgumentParser()
 parser.add_argument("--text", type=str)
@@ -31,9 +31,10 @@ def nat_normalize_text(text):
     return text.strip()
 
 
-text = nat_normalize_text(args.text)
-print("Normalized text input:", text)
-mel = text2mel(text, args.lexicon_file, args.silence_duration)
+text = "xin chao"
+mel = text2mel(
+    text, lexicon_fn="vietTTS/assets/infore/lexicon.txt", silence_duration=0.2
+)
 wave = mel2wave(mel)
-print("writing output to file", args.output)
-sf.write(str(args.output), wave, samplerate=args.sample_rate)
+# print("writing output to file", args.output)
+sf.write("clip.wav", wave, 16000)

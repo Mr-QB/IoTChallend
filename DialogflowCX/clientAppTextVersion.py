@@ -29,7 +29,8 @@ Examples:
 import argparse
 import uuid
 import os
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "DialogflowCX/key/gcp_key.json"
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "key/gcp_key.json"
 
 from google.cloud.dialogflowcx_v3beta1.services.agents import AgentsClient
 from google.cloud.dialogflowcx_v3.services.intents import IntentsClient
@@ -112,6 +113,8 @@ def detect_intent_with_intent_input(
         response_text.append(response_message.text.text)
         print(response_message.text.text)
     return response_text
+
+
 if __name__ == "__main__":
 
     project_id = "citric-goal-343716"
@@ -130,9 +133,8 @@ if __name__ == "__main__":
         texts = [input("mé: ")]
         detect_intent_texts(agent, session_id, texts, language_code)
 
-
     # detect_intent_texts(agent, session_id, texts, language_code)
-    
+
     # PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT")
     # AGENT_ID = os.getenv("AGENT_ID")
     # AGENT = f"projects/{PROJECT_ID}/locations/global/agents/{AGENT_ID}"
