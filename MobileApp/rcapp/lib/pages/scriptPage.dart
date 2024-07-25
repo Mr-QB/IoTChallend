@@ -315,7 +315,7 @@ class CustomDialog {
   }
 
   static Future<void> _sendJsonData(List<Map<String, dynamic>> rows) async {
-    final String url = AppConfig.http_url + "/test";
+    final String url = AppConfig.http_url + "/tests";
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
