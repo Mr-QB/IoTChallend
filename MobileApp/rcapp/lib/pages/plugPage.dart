@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -6,10 +5,7 @@ import 'dart:convert';
 import 'package:rcapp/config.dart';
 
 class SmartPlug extends StatefulWidget {
-  final int notificationCount; // Thêm biến này
-
-  const SmartPlug({Key? key, required this.notificationCount})
-      : super(key: key);
+  const SmartPlug({Key? key}) : super(key: key);
 
   @override
   State<SmartPlug> createState() => _SmartPlugPageState();
@@ -66,6 +62,55 @@ class _SmartPlugPageState extends State<SmartPlug> {
     }
   }
 
+  Future<void> updateDevice(
+      int deviceId, String newDeviceName, String newRoomName) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            AppConfig.http_url + "/updatedevice"), // Thay đổi URL nếu cần thiết
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'device_id': deviceId,
+          'device_name': newDeviceName,
+          'room_name': newRoomName,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Cập nhật thiết bị thành công');
+      } else {
+        print(
+            'Cập nhật thiết bị thất bại với mã trạng thái: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Lỗi khi cập nhật thiết bị: $e');
+    }
+  }
+
+  Future<void> deleteDevice(int deviceId) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            AppConfig.http_url + "/deletedevice"), // Thay đổi URL nếu cần thiết
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'device_id': deviceId}),
+      );
+
+      if (response.statusCode == 200) {
+        print('Xóa thiết bị thành công');
+      } else {
+        print(
+            'Xóa thiết bị thất bại với mã trạng thái: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Lỗi khi xóa thiết bị: $e');
+    }
+  }
+
   @override
   void initState() {
     _refreshData();
@@ -102,50 +147,6 @@ class _SmartPlugPageState extends State<SmartPlug> {
           margin: const EdgeInsets.only(top: 18, left: 24, right: 24),
           child: Column(
             children: [
-              // Container(
-              //   child: Row(
-              //     children: [
-              //       Container(
-              //         child: Icon(Icons.messenger),
-              //       ),
-              //       SizedBox(
-              //         width: 280,
-              //       ),
-              //       Container(
-              //         child: Image(
-              //           image: AssetImage('lib/images/user_avatar.png'),
-              //           width: 40,
-              //           height: 60,
-              //         ),
-              //       )
-              //     ],
-              //   ),
-              // ), //app bar
-              // Container(
-              //   child: Row(
-              //     children: [
-              //       Container(
-              //         child: Column(
-              //           mainAxisAlignment: MainAxisAlignment.start,
-              //           children: [
-              //             Text("Welcome home"),
-              //             Text(
-              //               "shoaib aslam",
-              //               style: TextStyle(fontWeight: FontWeight.w500),
-              //             )
-              //           ],
-              //         ),
-              //       ),
-              //       Container(
-              //         child: Image(
-              //           image: AssetImage("lib/images/home.png"),
-              //           width: 200,
-              //           height: 100,
-              //         ),
-              //       )
-              //     ],
-              //   ),
-              // ), //title and the illustration section
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -164,19 +165,32 @@ class _SmartPlugPageState extends State<SmartPlug> {
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          await _refreshData();
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return CustomDialog(
-                                onRefreshData: () {
-                                  _refreshData(); // Gọi hàm `_refreshData` khi dialog được hiển thị
-                                },
-                                deviceId: plugNotConfig[0]
-                                    [2], // Cung cấp giá trị deviceId
-                              );
-                            },
-                          );
+                          if (plugNotConfig.length > 0) {
+                            await _refreshData();
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return CustomDialog(
+                                  onRefreshData: () async {
+                                    await _refreshData(); // Gọi hàm `_refreshData` khi dialog được hiển thị
+                                  },
+                                  onDialogClosed: () async {
+                                    await _refreshData(); // Làm mới lại dữ liệu khi dialog đóng lại
+                                    await fetchDevices(); // Cập nhật danh sách thiết bị
+                                    setState(() {}); // Cập nhật giao diện
+                                  },
+                                  deviceId: plugNotConfig[0][2]
+                                      .toString(), // Cung cấp giá trị deviceId
+                                  initialDeviceName: plugNotConfig[0]
+                                      [0], // Tên thiết bị ban đầu
+                                  initialRoomName: plugNotConfig[0]
+                                      [1], // Tên phòng ban đầu
+                                );
+                              },
+                            );
+                          } else {
+                            print("No devices to configure");
+                          }
                         },
                         child: const RotatedBox(
                           quarterTurns:
@@ -231,11 +245,37 @@ class _SmartPlugPageState extends State<SmartPlug> {
                   itemCount:
                       mySmartPlugs.length, // Số lượng item trong GridView
                   itemBuilder: (context, int index) {
-                    return SmartPlugBox(
+                    return GestureDetector(
+                      onLongPress: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomDialog(
+                              onRefreshData: () async {
+                                await _refreshData(); // Gọi hàm `_refreshData` khi dialog được hiển thị
+                              },
+                              onDialogClosed: () async {
+                                await _refreshData(); // Làm mới lại dữ liệu khi dialog đóng lại
+                                await fetchDevices(); // Cập nhật danh sách thiết bị
+                                setState(() {}); // Cập nhật giao diện
+                              },
+                              deviceId: mySmartPlugs[index][2]
+                                  .toString(), // Cung cấp giá trị deviceId
+                              initialDeviceName: mySmartPlugs[index]
+                                  [0], // Tên thiết bị ban đầu
+                              initialRoomName: mySmartPlugs[index]
+                                  [1], // Tên phòng ban đầu
+                            );
+                          },
+                        );
+                      },
+                      child: SmartPlugBox(
                         plugName: mySmartPlugs[index][0],
                         roomName: mySmartPlugs[index][1],
                         deviceId: mySmartPlugs[index][2],
-                        initialPowerOn: mySmartPlugs[index][3]);
+                        initialPowerOn: mySmartPlugs[index][3],
+                      ),
+                    );
                   },
                 ),
               ),
@@ -296,8 +336,8 @@ class _SmartPlugBoxState extends State<SmartPlugBox> {
           'Content-Type': 'application/json', // Thiết lập loại nội dung là JSON
         },
         body: jsonEncode({
-          'topic': widget.deviceId.toString(),
-          'msg': powerOn.toString(),
+          'device_id': widget.deviceId.toString(),
+          'status': powerOn.toString(),
         }),
       );
 
@@ -409,45 +449,54 @@ class _SmartPlugBoxState extends State<SmartPlugBox> {
 }
 
 class CustomDialog extends StatelessWidget {
-  final VoidCallback
-      onRefreshData; // Tham số nhận hàm không có tham số và không trả giá trị
-  final int deviceId; // Thêm tham số deviceId
+  final Future<void> Function() onRefreshData;
+  final Future<void> Function() onDialogClosed;
+  final String deviceId;
+  final String initialDeviceName;
+  final String initialRoomName;
 
-  // Constructor nhận tham số này
-  CustomDialog({required this.onRefreshData, required this.deviceId});
+  CustomDialog({
+    required this.onRefreshData,
+    required this.onDialogClosed,
+    required this.deviceId,
+    required this.initialDeviceName,
+    required this.initialRoomName,
+  });
 
   @override
   Widget build(BuildContext context) {
     // Gọi hàm onRefreshData khi dialog được hiển thị
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      onRefreshData(); // Thực thi hàm được truyền từ bên ngoài
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await onRefreshData(); // Thực thi hàm được truyền từ bên ngoài
     });
-    final TextEditingController deviceNameController = TextEditingController();
-    final TextEditingController roomNameController = TextEditingController();
+
+    final TextEditingController deviceNameController =
+        TextEditingController(text: initialDeviceName);
+    final TextEditingController roomNameController =
+        TextEditingController(text: initialRoomName);
+
     return AlertDialog(
-      title: Text('Custom Dialog'),
+      title: Text('Cập nhật thông tin thiết bị'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Trường nhập văn bản cho device_name
           TextField(
             controller: deviceNameController,
             decoration: InputDecoration(
-              hintText: 'Nhập tên thiết bị', // Chữ nền mờ
-              border: OutlineInputBorder(),
-            ),
-          ),
-          SizedBox(height: 16), // Khoảng cách giữa hai trường nhập liệu
-          // Trường nhập văn bản cho room_name
-          TextField(
-            controller: roomNameController,
-            decoration: InputDecoration(
-              hintText: 'Nhập tên phòng', // Chữ nền mờ
+              hintText: 'Nhập tên thiết bị',
               border: OutlineInputBorder(),
             ),
           ),
           SizedBox(height: 16),
-          Text('Device ID: $deviceId'), // Hiển thị deviceId nếu cần
+          TextField(
+            controller: roomNameController,
+            decoration: InputDecoration(
+              hintText: 'Nhập tên phòng',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16),
+          Text('Device ID: $deviceId'),
         ],
       ),
       actions: [
@@ -457,6 +506,7 @@ class CustomDialog extends StatelessWidget {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Đóng cửa sổ con
+                onDialogClosed(); // Gọi callback khi đóng dialog
               },
               child: Text('Đóng'),
             ),
@@ -465,18 +515,10 @@ class CustomDialog extends StatelessWidget {
                 String deviceName = deviceNameController.text;
                 String roomName = roomNameController.text;
 
-                print('Device Name: $deviceName');
-                print('Room Name: $roomName');
-                print('Device ID: $deviceId'); // In ra deviceId nếu cần
-
-                // Gửi yêu cầu HTTP POST
                 try {
                   final response = await http.post(
-                    Uri.parse(
-                        AppConfig.http_url + "/adddivice"), // Thay đổi URL
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
+                    Uri.parse(AppConfig.http_url + "/updatedevice"),
+                    headers: {'Content-Type': 'application/json'},
                     body: jsonEncode({
                       'device_name': deviceName,
                       'room_name': roomName,
@@ -485,20 +527,43 @@ class CustomDialog extends StatelessWidget {
                   );
 
                   if (response.statusCode == 200) {
-                    print('Yêu cầu POST thành công');
+                    print('Cập nhật thiết bị thành công');
                   } else {
                     print(
-                        'Yêu cầu POST thất bại với mã trạng thái: ${response.statusCode}');
-                    // Xử lý lỗi hoặc hiển thị thông báo phù hợp tại đây
+                        'Cập nhật thiết bị thất bại với mã trạng thái: ${response.statusCode}');
                   }
                 } catch (e) {
                   print('Lỗi gửi yêu cầu POST: $e');
-                  // Xử lý lỗi khi có lỗi kết nối hoặc xử lý khác
                 }
 
                 Navigator.of(context).pop(); // Đóng cửa sổ con
+                await onDialogClosed(); // Gọi callback khi đóng dialog
               },
-              child: Text('Xác nhận'),
+              child: Text('Cập nhật'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  final response = await http.post(
+                    Uri.parse(AppConfig.http_url + "/deletedevice"),
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode({'device_id': deviceId}),
+                  );
+
+                  if (response.statusCode == 200) {
+                    print('Xóa thiết bị thành công');
+                  } else {
+                    print(
+                        'Xóa thiết bị thất bại với mã trạng thái: ${response.statusCode}');
+                  }
+                } catch (e) {
+                  print('Lỗi gửi yêu cầu POST: $e');
+                }
+
+                Navigator.of(context).pop(); // Đóng cửa sổ con
+                await onDialogClosed(); // Gọi callback khi đóng dialog
+              },
+              child: Text('Xóa'),
             ),
           ],
         ),

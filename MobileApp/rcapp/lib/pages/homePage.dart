@@ -153,8 +153,7 @@ class _HomePageState extends State<HomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => SmartPlug(
-                                      notificationCount: plugNotConfig.length),
+                                  builder: (context) => SmartPlug(),
                                 ),
                               );
                             }),

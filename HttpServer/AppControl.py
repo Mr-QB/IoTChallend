@@ -51,11 +51,38 @@ class AppControl:
         @self.app.route("/control", methods=["POST"])
         def control():
             json_data = request.get_json()
-            topic = json_data.get("topic")
-            msg = json_data.get("msg")
-            print("+++\n", topic, msg)
-            # self.sentMQTTMsg(topic, msg)
-            return "Message sent successfully"
+            device_id = int(json_data.get("device_id"))
+            status = json_data.get("status")
+            print(device_id, status)
+
+            query = {"id": device_id}
+
+            if status == "true":
+                # self.sentMQTTMsg(device_id, 1)
+                update_data = {"$set": {"status": 1}}
+
+            if status == "false":
+                # self.sentMQTTMsg(device_id, 0)
+                update_data = {"$set": {"status": 0}}
+
+            result = self.devices_database.update_one(query, update_data, upsert=True)
+
+            if result.modified_count > 0:
+                return (
+                    jsonify(
+                        {"status": "success", "message": "Device updated successfully"}
+                    ),
+                    200,
+                )
+            elif result.upserted_id is not None:
+                return (
+                    jsonify(
+                        {"status": "success", "message": "Device created successfully"}
+                    ),
+                    201,
+                )
+            else:
+                return jsonify({"status": "error", "message": "No changes made"}), 304
 
         @self.app.route("/login", methods=["POST"])
         def checkLoginInfo():
@@ -105,12 +132,12 @@ class AppControl:
             except:
                 return jsonify({"message": "Registration failed"}), 401
 
-        @self.app.route("/adddivice", methods=["POST"])
+        @self.app.route("/updatedevice", methods=["POST"])
         def addDivice():
             json_data = request.get_json()
             device_name = json_data.get("device_name")
             room_name = json_data.get("room_name")
-            device_id = json_data.get("device_id")
+            device_id = int(json_data.get("device_id"))
             print(device_id)
 
             query = {"id": device_id}
@@ -134,9 +161,42 @@ class AppControl:
             else:
                 return jsonify({"status": "error", "message": "No changes made"}), 304
 
+        @self.app.route("/deletedevice", methods=["POST"])
+        def deleteDivice():
+            json_data = request.get_json()
+            # device_name = json_data.get("device_name")
+            room_name = json_data.get("room_name")
+            device_id = int(json_data.get("device_id"))
+            # print(device_id)
+
+            query = {"id": device_id}
+            update_data = {"$set": {"device_name": "", "room_name": ""}}
+            result = self.devices_database.update_one(query, update_data, upsert=True)
+
+            if result.modified_count > 0:
+                return (
+                    jsonify(
+                        {"status": "success", "message": "Device updated successfully"}
+                    ),
+                    200,
+                )
+            elif result.upserted_id is not None:
+                return (
+                    jsonify(
+                        {"status": "success", "message": "Device created successfully"}
+                    ),
+                    201,
+                )
+            else:
+                return jsonify({"status": "error", "message": "No changes made"}), 304
+
         @self.app.route("/getdevices", methods=["GET"])
         def getDevicesInfo():
-            query = {"room_name": {"$ne": ""}, "device_name": {"$ne": ""}}
+            query = {
+                "room_name": {"$ne": ""},
+                "device_name": {"$ne": ""},
+                "type": "plug",
+            }
             if self.devices_database.count_documents(query) > 0:
                 list_devices = list(self.devices_database.find(query, {"_id": 0}))
                 return json_util.dumps(list_devices), 200
