@@ -12,42 +12,69 @@ class ScriptsPage extends StatefulWidget {
 }
 
 class _ScriptsPageState extends State<ScriptsPage> {
-  List mySmartPlugs = [];
-
-  Future<List<dynamic>> fetchDevices() async {
-    final response =
-        await http.get(Uri.parse(AppConfig.http_url + "/getdevices"));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
+  List<List<dynamic>> mySmartPlugs = [];
+  List<List<dynamic>> mySensors = [];
 
   @override
   void initState() {
     super.initState();
-    fetchDevices().then((data) {
-      List<List<dynamic>> nestedList = [];
+    _fetchDevices();
+    _fetchSensors();
+  }
 
-      for (var item in data) {
-        String deviceName = item['device_name'] ?? '';
-        String roomName = item['room_name'] ?? '';
-        bool status =
-            item['status'] == 1; // Chuyển đổi '1' thành true, '0' thành false
-        int deviceId = (item['id']) ?? '';
+  Future<void> _fetchDevices() async {
+    try {
+      final response =
+          await http.get(Uri.parse(AppConfig.http_url + "/getdevices"));
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        List<List<dynamic>> nestedList = [];
+        for (var item in data) {
+          String deviceName = item['device_name'] ?? '';
+          String roomName = item['room_name'] ?? '';
+          bool status = item['status'] == 1;
+          int deviceId = item['id'] ?? 0;
 
-        List<dynamic> subList = [deviceName, roomName, deviceId, status];
-        nestedList.add(subList);
+          List<dynamic> subList = [deviceName, roomName, deviceId, status];
+          nestedList.add(subList);
+        }
+        setState(() {
+          mySmartPlugs = nestedList;
+        });
+      } else {
+        throw Exception('Failed to load data');
       }
-
-      setState(() {
-        mySmartPlugs = nestedList;
-      });
-    }).catchError((error) {
+    } catch (error) {
       print('Error: $error');
-      // Xử lý lỗi khi gọi API
-    });
+    }
+  }
+
+  Future<void> _fetchSensors() async {
+    try {
+      final response =
+          await http.get(Uri.parse(AppConfig.http_url + "/getsensors"));
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        List<List<dynamic>> nestedList = [];
+        for (var item in data) {
+          String sensorName = item['device_name'] ?? '';
+          String sensorType = item['type'] ?? '';
+          bool status = item['status'] == 1;
+          int sensorId = item['id'] ?? 0;
+
+          List<dynamic> subList = [sensorName, sensorType, sensorId, status];
+          nestedList.add(subList);
+        }
+        setState(() {
+          mySensors = nestedList;
+          print(mySensors);
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
   }
 
   @override
@@ -73,7 +100,7 @@ class _ScriptsPageState extends State<ScriptsPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      CustomDialog.show(context);
+                      CustomDialog.show(context, mySmartPlugs, mySensors);
                     },
                     child: RotatedBox(
                       quarterTurns: 2,
@@ -281,7 +308,19 @@ class _ScriptBoxs extends State<ScriptBoxs> {
 }
 
 class CustomDialog {
-  static void show(BuildContext context) {
+  List mySmartPlugs = [];
+  Future<List<dynamic>> fetchDevices() async {
+    final response = await http.get(Uri.parse(
+        AppConfig.http_url + "/getdevices")); // Thay đổi URL nếu cần thiết
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  static void show(BuildContext context, List<List<dynamic>> mySmartPlugs,
+      List<List<dynamic>> mySensors) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -295,7 +334,8 @@ class CustomDialog {
                 "Add new automated scripts",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
-              content: _buildDialogContent(rows, context, setState),
+              content: _buildDialogContent(
+                  rows, context, setState, mySmartPlugs, mySensors),
               actions: _buildDialogActions(
                 selectedOption,
                 rows,
@@ -315,7 +355,7 @@ class CustomDialog {
   }
 
   static Future<void> _sendJsonData(List<Map<String, dynamic>> rows) async {
-    final String url = AppConfig.http_url + "/tests";
+    final String url = AppConfig.http_url + "/createscipts";
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
@@ -340,10 +380,11 @@ class CustomDialog {
   }
 
   static Widget _buildDialogContent(
-    List<Map<String, dynamic>> rows,
-    BuildContext context,
-    StateSetter setState,
-  ) {
+      List<Map<String, dynamic>> rows,
+      BuildContext context,
+      StateSetter setState,
+      List<List<dynamic>> mySmartPlugs,
+      List<List<dynamic>> mySensors) {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -354,7 +395,7 @@ class CustomDialog {
           // Hiển thị các hàng đã thêm
           ...rows.map((row) {
             try {
-              return _buildRow(row, setState, context);
+              return _buildRow(row, setState, context, mySmartPlugs, mySensors);
             } catch (e) {
               print("Error building row: $e");
               return SizedBox.shrink();
@@ -367,22 +408,29 @@ class CustomDialog {
   }
 
   static Widget _buildRow(
-    Map<String, dynamic> row,
-    StateSetter setState,
-    BuildContext context,
-  ) {
+      Map<String, dynamic> row,
+      StateSetter setState,
+      BuildContext context,
+      List<List<dynamic>> mySmartPlugs,
+      List<List<dynamic>> mySensors) {
+    List<String> deviceNames =
+        mySmartPlugs.map((plug) => plug[0].toString()).toSet().toList();
+    List<String> sensorNames =
+        mySensors.map((sensor) => sensor[0].toString()).toSet().toList();
     if (row['type'] == 'Timer') {
       return Row(
         children: [
           Expanded(
             child: DropdownButton<String>(
-              value: row['deviceName'],
+              value: deviceNames.contains(row['deviceName'])
+                  ? row['deviceName']
+                  : null,
               isExpanded: true,
-              items: <String>['Random1', 'Random2'].map((String value) {
+              items: deviceNames.map((deviceName) {
                 return DropdownMenuItem<String>(
-                  value: value,
+                  value: deviceName,
                   child: Text(
-                    value,
+                    deviceName,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -446,13 +494,15 @@ class CustomDialog {
         children: [
           Expanded(
             child: DropdownButton<String>(
-              value: row['sensorName'],
+              value: sensorNames.contains(row['sensorName'])
+                  ? row['sensorName']
+                  : null,
               isExpanded: true,
-              items: <String>['Option1', 'Option2'].map((String value) {
+              items: sensorNames.map((sensorName) {
                 return DropdownMenuItem<String>(
-                  value: value,
+                  value: sensorName,
                   child: Text(
-                    value,
+                    sensorName,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
@@ -490,13 +540,15 @@ class CustomDialog {
           SizedBox(width: 8),
           Expanded(
             child: DropdownButton<String>(
-              value: row['deviceName'],
+              value: deviceNames.contains(row['deviceName'])
+                  ? row['deviceName']
+                  : null,
               isExpanded: true,
-              items: <String>['OptionA', 'OptionB'].map((String value) {
+              items: deviceNames.map((deviceName) {
                 return DropdownMenuItem<String>(
-                  value: value,
+                  value: deviceName,
                   child: Text(
-                    value,
+                    deviceName,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),

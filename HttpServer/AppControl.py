@@ -17,6 +17,7 @@ class AppControl:
         self.database = self.client[DATABASENAME]
         self.users_database = self.database["Users"]
         self.devices_database = self.database["Devices"]
+        self.scripts_database = self.database["Scripts"]
 
     def writeDataBase(self, users_database, data):
         users_database.insert_one(data)
@@ -98,16 +99,32 @@ class AppControl:
             else:
                 return jsonify({"message": "Invalid credentials"}), 401
 
-        @self.app.route("/test", methods=["POST"])
-        def test():
+        @self.app.route("/createscipts", methods=["POST"])
+        def createscipts():
             json_data = request.get_json()  # Lấy dữ liệu JSON từ yêu cầu
             if json_data is None:
                 return (
                     jsonify({"error": "Invalid JSON"}),
                     400,
                 )  # Trả về lỗi nếu không có dữ liệu JSON
+            for script in json_data:
+                if script["type"] == "Timer":
+                    query = {"device_name": script["deviceName"]}
+                    list_devices = list(self.devices_database.find(query, {"_id": 0}))
+                    device_id = list_devices[0]["id"]
 
-            print(json_data)  # In dữ liệu JSON ra console
+                    timer = script["timer"]
+
+                    new_script = {
+                        "type": "Timer",
+                        "device_id": device_id,
+                        "status": script["status"],
+                        "timer": timer,
+                    }
+
+                    result = self.scripts_database.insert_one(new_script)
+
+                    print(script)  # In dữ liệu JSON ra console
 
             return (
                 jsonify({"message": "Data received successfully"}),
@@ -138,7 +155,6 @@ class AppControl:
             device_name = json_data.get("device_name")
             room_name = json_data.get("room_name")
             device_id = int(json_data.get("device_id"))
-            print(device_id)
 
             query = {"id": device_id}
             update_data = {"$set": {"device_name": device_name, "room_name": room_name}}
@@ -197,11 +213,26 @@ class AppControl:
                 "device_name": {"$ne": ""},
                 "type": "plug",
             }
-            if self.devices_database.count_documents(query) > 0:
-                list_devices = list(self.devices_database.find(query, {"_id": 0}))
+            list_devices = list(self.devices_database.find(query, {"_id": 0}))
+
+            if list_devices:
                 return json_util.dumps(list_devices), 200
             else:
-                return jsonify({"message": "Invalid credentials"}), 401
+                return jsonify({"message": "No devices found"}), 404
+
+        @self.app.route("/getsensors", methods=["GET"])
+        def getSensorsInfo():
+            query = {
+                "room_name": {"$ne": ""},
+                "device_name": {"$ne": ""},
+                "type": "sensor",
+            }
+            list_devices = list(self.devices_database.find(query, {"_id": 0}))
+            print(list_devices)
+            if list_devices:
+                return json_util.dumps(list_devices), 200
+            else:
+                return jsonify({"message": "No devices found"}), 404
 
         @self.app.route("/checkdevicesnotconfig", methods=["GET"])
         def checkDevicesNotConfig():
