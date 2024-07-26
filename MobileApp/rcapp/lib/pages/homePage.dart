@@ -58,7 +58,8 @@ class _HomePageState extends State<HomePage> {
         String roomName = item['room_name'] ?? '';
         bool status =
             item['status'] == 1; // Chuyển đổi '1' thành true, '0' thành false
-        int deviceId = (item['id']) ?? '';
+        int deviceId = int.tryParse(item['id'].toString()) ??
+            0; // Parse id thành số nguyên, mặc định là 0 nếu không thành công
 
         List<dynamic> subList = [deviceName, roomName, deviceId, status];
         nestedList.add(subList);
@@ -152,7 +153,8 @@ class _HomePageState extends State<HomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const SmartPlug(),
+                                  builder: (context) => SmartPlug(
+                                      notificationCount: plugNotConfig.length),
                                 ),
                               );
                             }),

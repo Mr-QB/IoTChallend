@@ -105,6 +105,35 @@ class AppControl:
             except:
                 return jsonify({"message": "Registration failed"}), 401
 
+        @self.app.route("/adddivice", methods=["POST"])
+        def addDivice():
+            json_data = request.get_json()
+            device_name = json_data.get("device_name")
+            room_name = json_data.get("room_name")
+            device_id = json_data.get("device_id")
+            print(device_id)
+
+            query = {"id": device_id}
+            update_data = {"$set": {"device_name": device_name, "room_name": room_name}}
+            result = self.devices_database.update_one(query, update_data, upsert=True)
+
+            if result.modified_count > 0:
+                return (
+                    jsonify(
+                        {"status": "success", "message": "Device updated successfully"}
+                    ),
+                    200,
+                )
+            elif result.upserted_id is not None:
+                return (
+                    jsonify(
+                        {"status": "success", "message": "Device created successfully"}
+                    ),
+                    201,
+                )
+            else:
+                return jsonify({"status": "error", "message": "No changes made"}), 304
+
         @self.app.route("/getdevices", methods=["GET"])
         def getDevicesInfo():
             query = {"room_name": {"$ne": ""}, "device_name": {"$ne": ""}}

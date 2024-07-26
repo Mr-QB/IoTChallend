@@ -6,7 +6,10 @@ import 'dart:convert';
 import 'package:rcapp/config.dart';
 
 class SmartPlug extends StatefulWidget {
-  const SmartPlug({super.key});
+  final int notificationCount; // Thêm biến này
+
+  const SmartPlug({Key? key, required this.notificationCount})
+      : super(key: key);
 
   @override
   State<SmartPlug> createState() => _SmartPlugPageState();
@@ -14,6 +17,7 @@ class SmartPlug extends StatefulWidget {
 
 class _SmartPlugPageState extends State<SmartPlug> {
   List mySmartPlugs = [];
+  List plugNotConfig = [];
 
   Future<List<dynamic>> fetchDevices() async {
     final response = await http.get(Uri.parse(
@@ -25,8 +29,46 @@ class _SmartPlugPageState extends State<SmartPlug> {
     }
   }
 
+  Future<List<dynamic>> fetchDeviceNoConfig() async {
+    print(AppConfig.http_url);
+    final response = await http.get(Uri.parse(AppConfig.http_url +
+        "/checkdevicesnotconfig")); // Thay đổi URL nếu cần thiết
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Future<void> _refreshData() async {
+    try {
+      final data = await fetchDeviceNoConfig();
+      List<List<dynamic>> nestedList = [];
+
+      for (var item in data) {
+        String deviceName = item['device_name'] ?? '';
+        String roomName = item['room_name'] ?? '';
+        bool status =
+            item['status'] == 1; // Chuyển đổi '1' thành true, '0' thành false
+        int deviceId = int.tryParse(item['id'].toString()) ??
+            0; // Parse id thành số nguyên, mặc định là 0 nếu không thành công
+
+        List<dynamic> subList = [deviceName, roomName, deviceId, status];
+        nestedList.add(subList);
+      }
+
+      setState(() {
+        plugNotConfig = nestedList;
+      });
+    } catch (error) {
+      print('Error: $error');
+      // Xử lý lỗi khi gọi API
+    }
+  }
+
   @override
   void initState() {
+    _refreshData();
     super.initState();
     fetchDevices().then((data) {
       List<List<dynamic>> nestedList = [];
@@ -116,13 +158,55 @@ class _SmartPlugPageState extends State<SmartPlug> {
                       color: Colors.indigo,
                     ),
                   ),
-                  const RotatedBox(
-                    quarterTurns: 135,
-                    child: Icon(
-                      Icons.bar_chart_rounded,
-                      color: Colors.indigo,
-                      size: 28,
-                    ),
+                  Stack(
+                    alignment: Alignment
+                        .topRight, // Căn chỉnh số màu đỏ ở góc trên bên phải
+                    children: [
+                      GestureDetector(
+                        onTap: () async {
+                          await _refreshData();
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return CustomDialog(
+                                onRefreshData: () {
+                                  _refreshData(); // Gọi hàm `_refreshData` khi dialog được hiển thị
+                                },
+                                deviceId: plugNotConfig[0]
+                                    [2], // Cung cấp giá trị deviceId
+                              );
+                            },
+                          );
+                        },
+                        child: const RotatedBox(
+                          quarterTurns:
+                              1, // Đã thay đổi từ 135 thành 1 (90 độ) để đúng với góc xoay
+                          child: Icon(Icons.bar_chart_rounded,
+                              color: Colors.indigo, size: 35),
+                        ),
+                      ),
+                      Positioned(
+                        child: Container(
+                          padding: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          child: Text(
+                            '${plugNotConfig.length}', // Thay đổi số này thành số thông báo bạn muốn hiển thị
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
                   )
                 ],
               ),
@@ -320,6 +404,105 @@ class _SmartPlugBoxState extends State<SmartPlugBox> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class CustomDialog extends StatelessWidget {
+  final VoidCallback
+      onRefreshData; // Tham số nhận hàm không có tham số và không trả giá trị
+  final int deviceId; // Thêm tham số deviceId
+
+  // Constructor nhận tham số này
+  CustomDialog({required this.onRefreshData, required this.deviceId});
+
+  @override
+  Widget build(BuildContext context) {
+    // Gọi hàm onRefreshData khi dialog được hiển thị
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      onRefreshData(); // Thực thi hàm được truyền từ bên ngoài
+    });
+    final TextEditingController deviceNameController = TextEditingController();
+    final TextEditingController roomNameController = TextEditingController();
+    return AlertDialog(
+      title: Text('Custom Dialog'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Trường nhập văn bản cho device_name
+          TextField(
+            controller: deviceNameController,
+            decoration: InputDecoration(
+              hintText: 'Nhập tên thiết bị', // Chữ nền mờ
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16), // Khoảng cách giữa hai trường nhập liệu
+          // Trường nhập văn bản cho room_name
+          TextField(
+            controller: roomNameController,
+            decoration: InputDecoration(
+              hintText: 'Nhập tên phòng', // Chữ nền mờ
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 16),
+          Text('Device ID: $deviceId'), // Hiển thị deviceId nếu cần
+        ],
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng cửa sổ con
+              },
+              child: Text('Đóng'),
+            ),
+            TextButton(
+              onPressed: () async {
+                String deviceName = deviceNameController.text;
+                String roomName = roomNameController.text;
+
+                print('Device Name: $deviceName');
+                print('Room Name: $roomName');
+                print('Device ID: $deviceId'); // In ra deviceId nếu cần
+
+                // Gửi yêu cầu HTTP POST
+                try {
+                  final response = await http.post(
+                    Uri.parse(
+                        AppConfig.http_url + "/adddivice"), // Thay đổi URL
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: jsonEncode({
+                      'device_name': deviceName,
+                      'room_name': roomName,
+                      'device_id': deviceId,
+                    }),
+                  );
+
+                  if (response.statusCode == 200) {
+                    print('Yêu cầu POST thành công');
+                  } else {
+                    print(
+                        'Yêu cầu POST thất bại với mã trạng thái: ${response.statusCode}');
+                    // Xử lý lỗi hoặc hiển thị thông báo phù hợp tại đây
+                  }
+                } catch (e) {
+                  print('Lỗi gửi yêu cầu POST: $e');
+                  // Xử lý lỗi khi có lỗi kết nối hoặc xử lý khác
+                }
+
+                Navigator.of(context).pop(); // Đóng cửa sổ con
+              },
+              child: Text('Xác nhận'),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
