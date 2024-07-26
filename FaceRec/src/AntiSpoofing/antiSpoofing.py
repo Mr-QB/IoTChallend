@@ -4,12 +4,10 @@ import numpy as np
 import argparse
 import warnings
 import time
-
 import sys
 from .utility import parseModelName
 from .generatePatches import CropImage
 from .antiSpoofPredict import AntiSpoofPredict
-
 
 warnings.filterwarnings("ignore")
 

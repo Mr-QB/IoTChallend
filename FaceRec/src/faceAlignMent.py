@@ -1,7 +1,7 @@
 import math
 import cv2
 import numpy as np
-from openvino.inference_engine import IECore
+from openvino.runtime import Core
 from .setting import (
     MODEL_FACE_ALIGNMENT_XML,
     MODEL_FACE_ALIGNMENT_BIN,

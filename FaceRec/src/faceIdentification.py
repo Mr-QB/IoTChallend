@@ -9,6 +9,7 @@ from .setting import *
 from .AntiSpoofing.antiSpoofing import AntiSpoofing
 
 
+
 class FaceIdentifier:
     def __init__(self):
         checkAndDownloaFile(ARCFACE_MODEL_PATH, ARCFACE_MODEL_URL)
