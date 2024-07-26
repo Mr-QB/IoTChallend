@@ -49,6 +49,33 @@ class _ScriptsPageState extends State<ScriptsPage> {
     }
   }
 
+  Future<void> _fetchScript() async {
+    try {
+      final response =
+          await http.get(Uri.parse(AppConfig.http_url + "/getscript"));
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        List<List<dynamic>> nestedList = [];
+        for (var item in data) {
+          String deviceName = item['device_name'] ?? '';
+          String roomName = item['room_name'] ?? '';
+          bool status = item['status'] == 1;
+          int deviceId = item['id'] ?? 0;
+
+          List<dynamic> subList = [deviceName, roomName, deviceId, status];
+          nestedList.add(subList);
+        }
+        setState(() {
+          mySmartPlugs = nestedList;
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
   Future<void> _fetchSensors() async {
     try {
       final response =
@@ -329,13 +356,26 @@ class CustomDialog {
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
+            String scriptName = ''; // Đảm bảo khai báo scriptName ở đây
             return AlertDialog(
               title: Text(
                 "Add new automated scripts",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               ),
               content: _buildDialogContent(
-                  rows, context, setState, mySmartPlugs, mySensors),
+                rows,
+                context,
+                setState,
+                mySmartPlugs,
+                mySensors,
+                scriptName,
+                (value) {
+                  setState(() {
+                    scriptName =
+                        value; // Cập nhật giá trị của scriptName qua callback
+                  });
+                },
+              ),
               actions: _buildDialogActions(
                 selectedOption,
                 rows,
@@ -346,6 +386,7 @@ class CustomDialog {
                     selectedOption = newValue;
                   });
                 },
+                scriptName,
               ),
             );
           },
@@ -354,13 +395,18 @@ class CustomDialog {
     );
   }
 
-  static Future<void> _sendJsonData(List<Map<String, dynamic>> rows) async {
+  static Future<void> _sendJsonData(
+      List<Map<String, dynamic>> rows, String scriptName) async {
     final String url = AppConfig.http_url + "/createscipts";
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
     };
 
-    final String jsonString = jsonEncode(rows);
+    final Map<String, dynamic> jsonMap = {
+      'scriptName': scriptName,
+      'data': rows
+    };
+    final String jsonString = jsonEncode(jsonMap);
 
     try {
       final response = await http.post(
@@ -380,19 +426,30 @@ class CustomDialog {
   }
 
   static Widget _buildDialogContent(
-      List<Map<String, dynamic>> rows,
-      BuildContext context,
-      StateSetter setState,
-      List<List<dynamic>> mySmartPlugs,
-      List<List<dynamic>> mySensors) {
+    List<Map<String, dynamic>> rows,
+    BuildContext context,
+    StateSetter setState,
+    List<List<dynamic>> mySmartPlugs,
+    List<List<dynamic>> mySensors,
+    String scriptName, // Đảm bảo scriptName là tham số của hàm
+    ValueChanged<String>
+        onScriptNameChanged, // Thêm callback để cập nhật scriptName
+  ) {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("This is a custom dialog"),
+          TextField(
+            decoration: InputDecoration(
+              labelText: 'Script Name',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              onScriptNameChanged(value); // Gọi callback để cập nhật scriptName
+            },
+          ),
           SizedBox(height: 16),
-          // Hiển thị các hàng đã thêm
           ...rows.map((row) {
             try {
               return _buildRow(row, setState, context, mySmartPlugs, mySensors);
@@ -596,6 +653,7 @@ class CustomDialog {
     StateSetter setState,
     BuildContext context,
     ValueChanged<String> onOptionChanged,
+    String scriptName,
   ) {
     return [
       Column(
@@ -669,12 +727,11 @@ class CustomDialog {
           Spacer(),
           TextButton(
             onPressed: () {
-              CustomDialog._sendJsonData(rows);
-              // String jsonString = jsonEncode(rows);
-              // print('JSON data: $jsonString');
-
-              // Đóng dialog sau khi in dữ liệu
-              Navigator.of(context).pop();
+              print(
+                  'Script Name: $scriptName'); // Kiểm tra giá trị của scriptName
+              CustomDialog._sendJsonData(
+                  rows, scriptName); // Gọi _sendJsonData với scriptName
+              Navigator.of(context).pop(); // Đóng dialog
             },
             child: Text(
               "Done",

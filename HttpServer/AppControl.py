@@ -102,6 +102,7 @@ class AppControl:
         @self.app.route("/createscipts", methods=["POST"])
         def createscipts():
             json_data = request.get_json()  # Lấy dữ liệu JSON từ yêu cầu
+            print(json_data)
             if json_data is None:
                 return (
                     jsonify({"error": "Invalid JSON"}),
@@ -228,9 +229,16 @@ class AppControl:
                 "type": "sensor",
             }
             list_devices = list(self.devices_database.find(query, {"_id": 0}))
-            print(list_devices)
             if list_devices:
                 return json_util.dumps(list_devices), 200
+            else:
+                return jsonify({"message": "No devices found"}), 404
+
+        @self.app.route("/getscripts", methods=["GET"])
+        def getScriptsInfo():
+            all_scripts = list(self.scripts_database.find())
+            if all_scripts:
+                return json_util.dumps(all_scripts), 200
             else:
                 return jsonify({"message": "No devices found"}), 404
 
