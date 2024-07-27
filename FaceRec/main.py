@@ -1,6 +1,8 @@
 import cv2
 import time
 from src.trainer import Trainer
+import paho.mqtt.client as mqtt
+import time
 
 
 def test():
@@ -12,6 +14,34 @@ def test():
     face_detector = FaceDetector()  # Create Face detector
     face_alignment = FaceAlignment()
     face_identifier = FaceIdentifier()
+
+    broker = "pi.local"
+    port = 1883
+    topic = "2173"
+
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("Connected successfully to broker")
+        else:
+            print(f"Failed to connect, return code {rc}")
+
+    def on_disconnect(client, userdata, rc):
+        print(f"Disconnected with return code {rc}")
+
+    def publish_message(client, topic, message):
+        try:
+            client.publish(topic, message, qos=0, retain=True)
+            print(f"Message '{message}' published to topic '{topic}'")
+        except Exception as e:
+            print(f"Failed to publish message: {e}")
+
+    # Tạo một instance của client
+    client = mqtt.Client()
+
+    # Đăng ký callback cho các sự kiện
+    client.on_connect = on_connect
+    client.on_disconnect = on_disconnect
+    client.connect(broker, port, 60)
 
     # Initialize variables for FPS calculation
     prev_frame_time = time.time()
@@ -52,6 +82,8 @@ def test():
             else:
                 for i in range(len(faces_cropped_)):
                     face_name = face_identifier.result_name(faces_cropped_[i])
+                    if face_name != "Fake images" and face_name != "Unable to identify":
+                        publish_message(client, topic, "ON")
                     print(face_name)
                     # cv2.imshow("face", faces_cropped_[0])
 
