@@ -20,6 +20,7 @@ def test():
         fps = 0
         if not ret:
             break
+        # frame = cv2.resize(frame, (1080, 720))
 
         # Perform face detection and identification
         faces_cropped, x, y = face_detector.detect_face(frame)
@@ -52,7 +53,7 @@ def test():
                 for i in range(len(faces_cropped_)):
                     face_name = face_identifier.result_name(faces_cropped_[i])
                     print(face_name)
-                    cv2.imshow("face", faces_cropped_[0])
+                    # cv2.imshow("face", faces_cropped_[0])
 
                     cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 1)
                     cv2.putText(
