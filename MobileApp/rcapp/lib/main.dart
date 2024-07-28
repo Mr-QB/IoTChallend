@@ -10,17 +10,6 @@ void main() async {
   runApp(MyApp(cameras: cameras));
 }
 
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       home: cameraPage(),
-//     );
-//   }
-// }
 class MyApp extends StatelessWidget {
   final List<CameraDescription> cameras;
   MyApp({required this.cameras});

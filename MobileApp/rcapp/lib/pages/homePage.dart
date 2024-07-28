@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:flutter/material.dart';
 import 'package:rcapp/pages/temperature.dart';
 import 'dart:async';
@@ -25,23 +23,21 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    // Khởi tạo Timer với khoảng thời gian là 10 giây (10000 milliseconds)
     _timer = Timer.periodic(Duration(seconds: 7), (Timer timer) {
-      _refreshData(); // Gọi hàm để fetch dữ liệu từ server
+      _refreshData();
     });
   }
 
   @override
   void dispose() {
-    _timer
-        .cancel(); // Hủy Timer khi widget không còn sử dụng để ngừng gọi định kỳ
+    _timer.cancel();
     super.dispose();
   }
 
   Future<List<dynamic>> fetchDevices() async {
     print(AppConfig.http_url);
-    final response = await http.get(Uri.parse(AppConfig.http_url +
-        "/checkdevicesnotconfig")); // Thay đổi URL nếu cần thiết
+    final response = await http
+        .get(Uri.parse(AppConfig.http_url + "/checkdevicesnotconfig"));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -56,10 +52,8 @@ class _HomePageState extends State<HomePage> {
       for (var item in data) {
         String deviceName = item['device_name'] ?? '';
         String roomName = item['room_name'] ?? '';
-        bool status =
-            item['status'] == 1; // Chuyển đổi '1' thành true, '0' thành false
-        int deviceId = int.tryParse(item['id'].toString()) ??
-            0; // Parse id thành số nguyên, mặc định là 0 nếu không thành công
+        bool status = item['status'] == 1;
+        int deviceId = int.tryParse(item['id'].toString()) ?? 0;
 
         List<dynamic> subList = [deviceName, roomName, deviceId, status];
         nestedList.add(subList);
@@ -70,14 +64,13 @@ class _HomePageState extends State<HomePage> {
       });
     }).catchError((error) {
       print('Error: $error');
-      // Xử lý lỗi khi gọi API
     });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _refreshData(); // Gọi lại hàm để tải dữ liệu khi quay lại trang chính
+    _refreshData();
   }
 
   @override
@@ -215,12 +208,12 @@ class _HomePageState extends State<HomePage> {
   Widget _cardMenu({
     required String title,
     required String icon,
-    int notificationCount = 0, // Thêm tham số cho số thông báo
+    int notificationCount = 0,
     VoidCallback? onTap,
     Color color = Colors.white,
     Color fontColor = Colors.grey,
-    double iconWidth = 50.0, // Thêm tham số cho chiều rộng của icon
-    double iconHeight = 50.0, // Thêm tham số cho chiều cao của icon
+    double iconWidth = 50.0,
+    double iconHeight = 50.0,
   }) {
     return GestureDetector(
       onTap: onTap,

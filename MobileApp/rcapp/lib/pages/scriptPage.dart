@@ -153,13 +153,11 @@ class _ScriptsPageState extends State<ScriptsPage> {
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    mainAxisSpacing: 14.0, // Khoảng cách giữa các hàng
-                    crossAxisSpacing: 8, // Khoảng cách giữa các cột
-                    childAspectRatio:
-                        1.0, // Tỷ lệ chiều rộng so với chiều cao của mỗi item
+                    mainAxisSpacing: 14.0,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 1.0,
                   ),
-                  itemCount:
-                      mySmartPlugs.length, // Số lượng item trong GridView
+                  itemCount: mySmartPlugs.length,
                   itemBuilder: (context, int index) {
                     return ScriptBoxs(
                         plugName: mySmartPlugs[index][0],
@@ -188,7 +186,7 @@ class ScriptBoxs extends StatefulWidget {
     required this.plugName,
     required this.roomName,
     required this.deviceId,
-    this.iconPath = 'lib/images/smart-plug.png', // Default value for iconPath
+    this.iconPath = 'lib/images/smart-plug.png',
     required this.initialPowerOn,
   });
 
@@ -209,7 +207,7 @@ class _ScriptBoxs extends State<ScriptBoxs> {
 
   @override
   void dispose() {
-    _debounceTimer?.cancel(); // Hủy timer trước khi dispose State
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
@@ -223,7 +221,7 @@ class _ScriptBoxs extends State<ScriptBoxs> {
       final response = await http.post(
         Uri.parse(AppConfig.http_url + "/control"),
         headers: {
-          'Content-Type': 'application/json', // Thiết lập loại nội dung là JSON
+          'Content-Type': 'application/json',
         },
         body: jsonEncode({
           'topic': widget.deviceId.toString(),
@@ -337,8 +335,8 @@ class _ScriptBoxs extends State<ScriptBoxs> {
 class CustomDialog {
   List mySmartPlugs = [];
   Future<List<dynamic>> fetchDevices() async {
-    final response = await http.get(Uri.parse(
-        AppConfig.http_url + "/getdevices")); // Thay đổi URL nếu cần thiết
+    final response =
+        await http.get(Uri.parse(AppConfig.http_url + "/getdevices"));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -356,7 +354,7 @@ class CustomDialog {
 
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            String scriptName = ''; // Đảm bảo khai báo scriptName ở đây
+            String scriptName = '';
             return AlertDialog(
               title: Text(
                 "Add new automated scripts",
@@ -371,8 +369,7 @@ class CustomDialog {
                 scriptName,
                 (value) {
                   setState(() {
-                    scriptName =
-                        value; // Cập nhật giá trị của scriptName qua callback
+                    scriptName = value;
                   });
                 },
               ),
@@ -431,9 +428,8 @@ class CustomDialog {
     StateSetter setState,
     List<List<dynamic>> mySmartPlugs,
     List<List<dynamic>> mySensors,
-    String scriptName, // Đảm bảo scriptName là tham số của hàm
-    ValueChanged<String>
-        onScriptNameChanged, // Thêm callback để cập nhật scriptName
+    String scriptName,
+    ValueChanged<String> onScriptNameChanged,
   ) {
     return SingleChildScrollView(
       child: Column(
@@ -446,7 +442,7 @@ class CustomDialog {
               border: OutlineInputBorder(),
             ),
             onChanged: (value) {
-              onScriptNameChanged(value); // Gọi callback để cập nhật scriptName
+              onScriptNameChanged(value);
             },
           ),
           SizedBox(height: 16),
@@ -532,15 +528,12 @@ class CustomDialog {
                 );
                 if (pickedTime != null) {
                   setState(() {
-                    row['timer'] =
-                        '${pickedTime.hour}:${pickedTime.minute}'; // Chuyển đổi thành chuỗi
+                    row['timer'] = '${pickedTime.hour}:${pickedTime.minute}';
                   });
                 }
               },
               child: Text(
-                row['timer'] == null
-                    ? "Select Time"
-                    : row['timer']!, // Hiển thị chuỗi thời gian
+                row['timer'] == null ? "Select Time" : row['timer']!,
               ),
             ),
           ),
@@ -727,11 +720,9 @@ class CustomDialog {
           Spacer(),
           TextButton(
             onPressed: () {
-              print(
-                  'Script Name: $scriptName'); // Kiểm tra giá trị của scriptName
-              CustomDialog._sendJsonData(
-                  rows, scriptName); // Gọi _sendJsonData với scriptName
-              Navigator.of(context).pop(); // Đóng dialog
+              print('Script Name: $scriptName');
+              CustomDialog._sendJsonData(rows, scriptName);
+              Navigator.of(context).pop();
             },
             child: Text(
               "Done",

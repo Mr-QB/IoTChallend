@@ -1,39 +1,38 @@
-// #include <mqttConfig.h>
 #include <mqttConfig.h>
 
 void setup()
 {
   Serial.begin(115200);
-  mySerial.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN); // Cấu hình UART1 9600
-  Serial.println("Kiểm tra cảm biến hiện   diện LD2410C");
+  mySerial.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN); // Configure UART1 to 9600
+  Serial.println("Checking LD2410C presence sensor");
   strcpy(default_id, generateRandomString(10));
 
-  // Đọc giá trị relay_topic từ EEPROM
+  // Read relay_topic value from EEPROM
   EEPROM.begin(EEPROM_SIZE);
   readFromEEPROM();
 
-  // Kiểm tra UART
+  // Check UART
   if (mySerial)
   {
-    Serial.println("UART1 đã khởi động thành công");
+    Serial.println("UART1 successfully started");
   }
   else
   {
-    Serial.println("Khởi động UART1 thất bại");
+    Serial.println("Failed to start UART1");
   }
 
-  // Khởi động WiFiManager
+  // Start WiFiManager
   WiFiManager wifiManager;
 
-  // Xóa thông tin kết nối WiFi trước đó
+  // Clear previous WiFi connection information
   // wifiManager.resetSettings();
 
-  // Khởi động kết nối WiFi tự động
+  // Start automatic WiFi connection
   wifiManager.autoConnect("RCUET-Config");
 
-  Serial.println("Kết nối WiFi thành công!");
+  Serial.println("WiFi connected successfully!");
 
-  // Cấu hình MQTT
+  // Configure MQTT
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
 }
@@ -56,40 +55,40 @@ void loop()
       char c = mySerial.read();
       data += c;
     }
-    Serial.print("Dữ liệu từ LD2410C: ");
+    Serial.print("Data from LD2410C: ");
     Serial.println(data);
 
-    // Xử lý dữ liệu từ LD2410C
+    // Process data from LD2410C
     data.trim();
 
-    // Kiểm tra các trường hợp có người
+    // Check for presence
     if (data.indexOf("i") != -1)
     {
       detectionCount++;
-      noDetectionCount = 0; // Đặt lại biến đếm không phát hiện
+      noDetectionCount = 0; // Reset no detection counter
 
       if (noDetectionCount <= noDetectionThreshold)
       {
-        Serial.println("Phát hiện có người!");
+        Serial.println("Presence detected!");
         client.publish(relay_topic, "ON");
       }
     }
     else
     {
-      detectionCount = 0; // Đặt lại biến đếm phát hiện
+      detectionCount = 0; // Reset detection counter
       noDetectionCount++;
 
       if (noDetectionCount >= noDetectionThreshold)
       {
-        detectionCount = 0; // Đặt lại biến đếm phát hiện
-        Serial.println("Không phát hiện có người.");
+        detectionCount = 0; // Reset detection counter
+        Serial.println("No presence detected.");
         client.publish(relay_topic, "OFF");
       }
     }
   }
   else
   {
-    Serial.println("Không có dữ liệu từ LD2410C");
+    Serial.println("No data from LD2410C");
   }
   delay(1000);
 }

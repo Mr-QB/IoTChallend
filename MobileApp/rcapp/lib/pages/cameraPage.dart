@@ -28,7 +28,7 @@ class _CameraScreenState extends State<CameraScreen> {
   late Future<void> _initializeControllerFuture;
   bool _isUsingFrontCamera = false;
   final FaceDetector faceDetector = GoogleMlKit.vision.faceDetector();
-  List<File> _capturedImagesFiles = []; // Lưu các tệp ảnh
+  List<File> _capturedImagesFiles = [];
   int _currentStep = 0;
   late Directory _appDir;
   List<Rect> boundingBoxes = [];
@@ -37,10 +37,10 @@ class _CameraScreenState extends State<CameraScreen> {
 
   final List<String> _instructions = [
     'Look Straight',
-    // 'Turn Left',
-    // 'Turn Right',
-    // 'Look Up',
-    // 'Look Down'
+    'Turn Left',
+    'Turn Right',
+    'Look Up',
+    'Look Down'
   ];
 
   @override

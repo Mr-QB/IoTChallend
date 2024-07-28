@@ -15,7 +15,6 @@ class RunScripts:
         self.devices_database = self.database["Devices"]
         self.scripts_database = self.database["Scripts"]
 
-        # Initialize a stop event for the thread
         self.stop_event = Event()
 
     def isPastTimer(self, timer_str):

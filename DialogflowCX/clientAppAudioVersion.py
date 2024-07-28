@@ -122,15 +122,15 @@ if __name__ == "__main__":
     location_id = "asia-northeast1"
     agent_id = "8e648ef8-f318-4925-b99c-6242e5f802e7"
     agent = f"projects/{project_id}/locations/{location_id}/agents/{agent_id}"
-    language_code = "vi-vn"  # Ngôn ngữ tiếng Việt
+    language_code = "vi-vn"
 
     while True:
-        session_id = uuid.uuid4()  # Tạo session_id mới cho mỗi lần ghi âm
+        session_id = uuid.uuid4()
         print("Ghi âm bắt đầu...")
-        audio_data = record_audio()  # Ghi âm và nhận dữ liệu âm thanh
+        audio_data = record_audio()
         print("Ghi âm hoàn tất, gửi dữ liệu đến Dialogflow...")
 
         detect_intent_stream(agent, session_id, audio_data, language_code)
 
         print("Chờ 2 giây trước khi ghi âm tiếp theo...")
-        time.sleep(2)  # Chờ 5 giây trước khi bắt đầu vòng lặp ghi âm tiếp theo
+        time.sleep(2)

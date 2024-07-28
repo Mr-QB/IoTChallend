@@ -1,36 +1,36 @@
 #include <Arduino.h>
 #include <Lib.h>
 
-#define RST_PIN 4     // GPIO4 cho chân RESET của RC522
-#define SS_PIN 5      // GPIO5 cho chân SS (Slave Select) của RC522
-#define BUZZER_PIN 15 // GPIO15 cho còi
-#define Relay_PIN 2   // GPIO2 cho relay
+#define RST_PIN 4     // GPIO4 for RESET pin of RC522
+#define SS_PIN 5      // GPIO5 for SS (Slave Select) pin of RC522
+#define BUZZER_PIN 15 // GPIO15 for buzzer
+#define Relay_PIN 2   // GPIO2 for relay
 #define EEPROM_ADDRESS 0
 
-MFRC522 mfrc522(SS_PIN, RST_PIN);   // Khởi tạo MFRC522
-LiquidCrystal_I2C lcd(0x27, 16, 2); // Địa chỉ LCD là 0x27, kích thước 16x2
+MFRC522 mfrc522(SS_PIN, RST_PIN);   // Initialize MFRC522
+LiquidCrystal_I2C lcd(0x27, 16, 2); // LCD address is 0x27, size 16x2
 
-// Mảng lưu trữ các UID được chấp nhận
+// Array to store accepted UIDs
 String accepted_UIDs[] = {"B1B9DB1D", "5371AFFE"};
-const int num_accepted_UIDs = 2; // Số lượng UID được chấp nhận
+const int num_accepted_UIDs = 2; // Number of accepted UIDs
 
-const byte ROWS = 4; // Số hàng của bảng mã số
-const byte COLS = 4; // Số cột của bảng mã số
+const byte ROWS = 4; // Number of rows in the keypad
+const byte COLS = 4; // Number of columns in the keypad
 char keys[ROWS][COLS] = {
     {'1', '2', '3', 'A'},
     {'4', '5', '6', 'B'},
     {'7', '8', '9', 'C'},
     {'*', '0', '#', 'D'}};
-byte rowPins[ROWS] = {13, 12, 14, 27}; // Định nghĩa các chân cho các hàng
-byte colPins[COLS] = {26, 25, 33, 32}; // Định nghĩa các chân cho các cột
+byte rowPins[ROWS] = {13, 12, 14, 27}; // Define pins for the rows
+byte colPins[COLS] = {26, 25, 33, 32}; // Define pins for the columns
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-String correctPassword = "1234";   // Mật khẩu đúng
-String enteredPassword = "";       // Biến lưu trữ mật khẩu đã nhập
-String newPassword = "";           // Biến lưu trữ mật khẩu mới
-bool isChangingPassword = false;   // Biến để kiểm tra xem có đang thay đổi mật khẩu hay không
-bool confirmNewPassword = false;   // Biến để xác nhận mật khẩu mới
-bool oldPasswordConfirmed = false; // Biến để xác nhận mật khẩu cũ đã được nhập đúng
+String correctPassword = "1234";   // Correct password
+String enteredPassword = "";       // Variable to store entered password
+String newPassword = "";           // Variable to store new password
+bool isChangingPassword = false;   // Variable to check if changing password
+bool confirmNewPassword = false;   // Variable to confirm new password
+bool oldPasswordConfirmed = false; // Variable to confirm old password
 
 // WiFi
 const char *ssid = "HBA";             // Enter your WiFi name

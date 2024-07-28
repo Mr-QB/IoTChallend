@@ -19,7 +19,7 @@ class LoginPage extends StatelessWidget {
     final response = await http.post(
       Uri.parse(AppConfig.http_url + "/login"),
       headers: {
-        'Content-Type': 'application/json', // Thiết lập loại nội dung là JSON
+        'Content-Type': 'application/json',
       },
       body: jsonEncode({
         'username': username,
@@ -101,8 +101,7 @@ class LoginPage extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 0.0), // Thêm padding để căn lề
+                    padding: const EdgeInsets.only(left: 0.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -116,7 +115,6 @@ class LoginPage extends StatelessWidget {
                           },
                           child: Text('Quên mật khẩu ?'),
                         ),
-                        // SizedBox(height: 2), // Khoảng cách giữa hai button
                         TextButton(
                           onPressed: () {
                             Navigator.push(

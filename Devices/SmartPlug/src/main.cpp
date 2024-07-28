@@ -1,17 +1,17 @@
 #include <Arduino.h>
-#include <WiFi.h> // Thư viện WiFi cho ESP32
+#include <WiFi.h> // WiFi library for ESP32
 #include <PubSubClient.h>
-#include <WiFiManager.h> // Thư viện WiFiManager
+#include <WiFiManager.h> // WiFiManager library
 #include <WiFiClientSecure.h>
 
-int relayPin1 = 26; // Sử dụng GPIO 26 cho relay 1
-int relayPin2 = 27; // Sử dụng GPIO 27 cho relay 2
+int relayPin1 = 26; // Use GPIO 26 for relay 1
+int relayPin2 = 27; // Use GPIO 27 for relay 2
 
 const char *mqtt_server = "192.168.0.118";
 const char *mqttUser = "";
 const char *mqttPassword = "";
 
-WiFiClient espClient; // Sử dụng WiFiClientSecure cho SSL/TLS
+WiFiClient espClient; // Use WiFiClientSecure for SSL/TLS
 PubSubClient client(espClient);
 
 void callback(char *topic, byte *payload, unsigned int length)
@@ -51,15 +51,15 @@ void callback(char *topic, byte *payload, unsigned int length)
 
 void reconnect()
 {
-  // Thử kết nối lại MQTT cho đến khi thành công
+  // Try to reconnect to MQTT until successful
   while (!client.connected())
   {
     Serial.print("Attempting MQTT connection...");
-    // Kết nối sử dụng thông tin đăng nhập
+    // Connect using login credentials
     if (client.connect("ESP32Client___", mqttUser, mqttPassword))
     {
       Serial.println("connected");
-      // Đăng ký chủ đề MQTT để nhận lệnh điều khiển
+      // Subscribe to MQTT topic to receive control commands
       client.subscribe("/plug");
     }
     else
@@ -67,7 +67,7 @@ void reconnect()
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Đợi 5 giây trước khi thử lại
+      // Wait 5 seconds before retrying
       delay(5000);
     }
   }
@@ -75,39 +75,26 @@ void reconnect()
 
 void setup()
 {
-  // Khai báo chân điều khiển relay
+  // Declare relay control pins
   pinMode(relayPin1, OUTPUT);
   pinMode(relayPin2, OUTPUT);
 
-  // Khởi động giao tiếp Serial
+  // Start Serial communication
   Serial.begin(9600);
 
-  // Khởi động WiFiManager
+  // Start WiFiManager
   WiFiManager wifiManager;
 
-  // Cấu hình cho phép kết nối WiFi
+  // Configure to allow WiFi connection
   wifiManager.autoConnect("RCUET-Config");
 
-  // In ra thông tin kết nối WiFi
+  // Print WiFi connection information
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  // Thiết lập ESPClient cho giao tiếp không an toàn (không có chứng chỉ SSL hợp lệ)
+  // Set up ESPClient for insecure communication (without valid SSL certificate)
   // espClient.setInsecure();
 
-  // Thiết lập client MQTT
-  client.setServer(mqtt_server, 1883); // Sử dụng cổng 8883 cho SSL/TLS
-  client.setCallback(callback);
-}
-
-void loop()
-{
-  // Kết nối lại MQTT nếu mất kết nối
-  if (!client.connected())
-  {
-    reconnect();
-  }
-  // Duy trì kết nối MQTT và xử lý các thông điệp đến
-  client.loop();
-}
+  // Set up MQTT client
+  client.setServer(mqtt_server, 1883); // Use port 1883 for non

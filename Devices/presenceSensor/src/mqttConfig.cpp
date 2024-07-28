@@ -1,9 +1,9 @@
 #include <mqttConfig.h>
 
-// Cấu hình UART
+// Configure UART
 HardwareSerial mySerial(1); // UART 1
 
-// Địa chỉ MQTT broker
+// MQTT broker address
 const char *mqtt_server = "192.168.1.13";
 const char *mqttUser = "";
 const char *mqttPassword = "";
@@ -12,10 +12,10 @@ const char *config_topic = "/mqttconfig";
 char default_id[11];
 bool setup_mqtt_done = false;
 
-const int detectionThreshold = 5; // Ngưỡng phát hiện liên tiếp
+const int detectionThreshold = 5; // Consecutive detection threshold
 int detectionCount = 0;
 int noDetectionCount = 0;
-const int noDetectionThreshold = 5; // Ngưỡng không phát hiện liên tiếp
+const int noDetectionThreshold = 5; // Consecutive no detection threshold
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -30,7 +30,7 @@ char *generateRandomString(size_t length)
     {
         randomString[i] = charset[rand() % max_index];
     }
-    randomString[length] = '\0'; // Đảm bảo kết thúc chuỗi với ký tự null
+    randomString[length] = '\0'; // Ensure the string ends with a null character
 
     return randomString;
 }
@@ -39,19 +39,19 @@ void reconnect()
 {
     while (!client.connected())
     {
-        Serial.print("Đang cố gắng kết nối MQTT...");
+        Serial.print("Attempting MQTT connection...");
         if (client.connect("ESP32Client", mqttUser, mqttPassword))
         {
-            Serial.println("Đã kết nối");
-            // Đăng ký nếu cần thiết
+            Serial.println("Connected");
+            // Subscribe if needed
             client.subscribe(relay_topic);
             client.subscribe(default_id);
         }
         else
         {
-            Serial.print("Thất bại, rc=");
+            Serial.print("Failed, rc=");
             Serial.print(client.state());
-            Serial.println(" thử lại sau 5 giây");
+            Serial.println(" try again in 5 seconds");
             delay(5000);
         }
     }
@@ -59,26 +59,26 @@ void reconnect()
 
 void callback(char *topic, byte *payload, unsigned int length)
 {
-    // Chuyển payload thành chuỗi để xử lý
+    // Convert payload to string for processing
     payload[length] = '\0';
     String message = String((char *)payload);
 
     Serial.println(topic);
     Serial.println(message);
-    // Kiểm tra nếu topic là "abc"
+    // Check if topic is "abc"
     if (strcmp(topic, default_id) == 0)
     {
         strncpy(relay_topic, message.c_str(), sizeof(relay_topic) - 1);
-        relay_topic[sizeof(relay_topic) - 1] = '\0'; // Đảm bảo kết thúc chuỗi
+        relay_topic[sizeof(relay_topic) - 1] = '\0'; // Ensure the string ends with a null character
 
-        // Lưu relay_topic vào EEPROM
+        // Save relay_topic to EEPROM
         writeToEEPROM();
 
         setup_mqtt_done = true;
     }
     else
     {
-        // Nếu không phải topic "abc", bạn có thể xử lý các trường hợp khác ở đây
+        // If not topic "abc", handle other cases here
         Serial.print("Received message on topic '");
         Serial.print(topic);
         Serial.print("': ");
@@ -96,7 +96,7 @@ void mqttConfig()
 
 void readFromEEPROM()
 {
-    // Đọc dữ liệu từ EEPROM vào biến relay_topic
+    // Read data from EEPROM into relay_topic variable
     EEPROM.get(EEPROM_ADDRESS, relay_topic);
     Serial.print("Read relay_topic from EEPROM: ");
     Serial.println(relay_topic);
@@ -104,9 +104,9 @@ void readFromEEPROM()
 
 void writeToEEPROM()
 {
-    // Ghi giá trị relay_topic vào EEPROM
+    // Write relay_topic value to EEPROM
     EEPROM.put(EEPROM_ADDRESS, relay_topic);
-    EEPROM.commit(); // Lưu thay đổi vào EEPROM
+    EEPROM.commit(); // Save changes to EEPROM
     Serial.print("Wrote relay_topic to EEPROM: ");
     Serial.println(relay_topic);
 }

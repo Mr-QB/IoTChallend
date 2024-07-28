@@ -10,7 +10,6 @@ from config import *
 
 class AppControl:
     def __init__(self):
-        # self.startTunnel()
         self.app = Flask(__name__)
 
         self.client = MongoClient(DATABASEURL)
@@ -59,11 +58,9 @@ class AppControl:
             query = {"id": device_id}
 
             if status == "true":
-                # self.sentMQTTMsg(device_id, 1)
                 update_data = {"$set": {"status": 1}}
 
             if status == "false":
-                # self.sentMQTTMsg(device_id, 0)
                 update_data = {"$set": {"status": 0}}
 
             result = self.devices_database.update_one(query, update_data, upsert=True)
@@ -101,13 +98,13 @@ class AppControl:
 
         @self.app.route("/createscipts", methods=["POST"])
         def createscipts():
-            json_data = request.get_json()  # Lấy dữ liệu JSON từ yêu cầu
+            json_data = request.get_json()
             print(json_data)
             if json_data is None:
                 return (
                     jsonify({"error": "Invalid JSON"}),
                     400,
-                )  # Trả về lỗi nếu không có dữ liệu JSON
+                )
             for script in json_data:
                 if script["type"] == "Timer":
                     query = {"device_name": script["deviceName"]}
@@ -125,12 +122,12 @@ class AppControl:
 
                     result = self.scripts_database.insert_one(new_script)
 
-                    print(script)  # In dữ liệu JSON ra console
+                    print(script)
 
             return (
                 jsonify({"message": "Data received successfully"}),
                 200,
-            )  # Trả về phản hồi thành công
+            )
 
         @self.app.route("/register", methods=["POST"])
         def createUser():
@@ -251,7 +248,6 @@ class AppControl:
             except:
                 return jsonify({"message": "Invalid credentials"}), 401
 
-        # Run the Flask server in a separate thread
         Thread(
             target=lambda: self.app.run(debug=True, use_reloader=False, host="0.0.0.0")
         ).start()
@@ -259,5 +255,5 @@ class AppControl:
 
 if __name__ == "__main__":
     app_control = AppControl()
-    # app_control.setUpMqtt("localhost")
+
     app_control.startHttpServer()

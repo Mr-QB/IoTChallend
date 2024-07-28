@@ -36,7 +36,7 @@ class SignUpPage extends StatelessWidget {
       final response = await http.post(
         Uri.parse(AppConfig.http_url + "/register"),
         headers: {
-          'Content-Type': 'application/json', // Thiết lập loại nội dung là JSON
+          'Content-Type': 'application/json',
         },
         body: jsonEncode({
           'username': username,

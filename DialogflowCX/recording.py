@@ -5,24 +5,24 @@ import time
 from collections import deque
 from io import BytesIO
 
-# Các hằng số
+# Constants
 SAMPLE_RATE = 24000
 CHUNK_SIZE = int(SAMPLE_RATE / 10)  # 100ms
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-ENERGY_THRESHOLD = 35  # Ngưỡng năng lượng để xem xét bắt đầu ghi âm
-STOP_THRESHOLD = 43  # Dừng ghi âm nếu năng lượng cao hơn ngưỡng này
-SMOOTHING_FACTOR = 0.4  # Hệ số làm mượt
+ENERGY_THRESHOLD = 35  # Energy threshold to consider starting recording
+STOP_THRESHOLD = 43  # Stop recording if energy exceeds this threshold
+SMOOTHING_FACTOR = 0.4  # Smoothing factor
 
 CONTINUOUS_BELOW_THRESHOLD = (
-    1.5  # Thời gian liên tục dưới ngưỡng để bắt đầu ghi âm (giây)
+    1.5  # Continuous time below threshold to start recording (seconds)
 )
 
 
 def record_audio():
     p = pyaudio.PyAudio()
 
-    # Mở luồng
+    # Open stream
     stream = p.open(
         format=FORMAT,
         channels=CHANNELS,
@@ -34,9 +34,9 @@ def record_audio():
     frames = []
 
     smooth_energy = 0
-    energy_deque = deque(maxlen=10)  # Cửa sổ lưu trữ các giá trị năng lượng
+    energy_deque = deque(maxlen=10)  # Window to store energy values
 
-    # Hàm tính năng lượng RMS của dữ liệu âm thanh
+    # Function to calculate RMS energy of audio data
     def rms_energy(audio_data):
         try:
             rms = np.sqrt(np.mean(np.square(audio_data), axis=None))
@@ -44,10 +44,10 @@ def record_audio():
             rms = 0
         return rms
 
-    print("Đang lắng nghe...")
+    print("Listening...")
 
     try:
-        below_threshold_start_time = time.time()  # Thời điểm bắt đầu dưới ngưỡng
+        below_threshold_start_time = time.time()  # Start time below threshold
         recording = False
 
         while True:
@@ -55,7 +55,7 @@ def record_audio():
             audio_data = np.frombuffer(data, dtype=np.int16)
             energy = rms_energy(audio_data)
 
-            # Làm mượt giá trị năng lượng
+            # Smooth energy value
             if energy != np.nan:
                 energy_deque.append(energy)
             if smooth_energy != np.nan:
@@ -64,34 +64,32 @@ def record_audio():
                 1 - SMOOTHING_FACTOR
             ) * np.mean(energy_deque)
 
-            # In ra năng lượng hiện tại và năng lượng đã làm mượt
+            # Print current and smoothed energy values
             print(
-                f"Năng lượng hiện tại: {energy:.2f}, Năng lượng đã làm mượt: {smooth_energy:.2f}",
+                f"Current energy: {energy:.2f}, Smoothed energy: {smooth_energy:.2f}",
                 time.time() - below_threshold_start_time,
                 recording,
             )
 
-            # Kiểm tra điều kiện để bắt đầu ghi âm
+            # Check condition to start recording
             if smooth_energy < ENERGY_THRESHOLD:
                 print("true")
                 if below_threshold_start_time is None:
                     below_threshold_start_time = (
                         time.time()
-                    )  # Ghi lại thời điểm dưới ngưỡng
+                    )  # Record the time below threshold
                 elif (
                     time.time() - below_threshold_start_time
                     >= CONTINUOUS_BELOW_THRESHOLD
                 ):
                     if not recording:
-                        print("Bắt đầu ghi âm...")
+                        print("Starting recording...")
                         recording = True
-                        frames = []  # Đặt lại các frame ghi âm
-            # else:
-            #     below_threshold_start_time = time.time()
+                        frames = []  # Reset recording frames
 
-            # Kiểm tra điều kiện để dừng ghi âm
+            # Check condition to stop recording
             if recording and smooth_energy > STOP_THRESHOLD:
-                print("Dừng ghi âm...")
+                print("Stopping recording...")
                 break
 
             if recording:
@@ -100,19 +98,19 @@ def record_audio():
     except Exception as e:
         print(e)
     finally:
-        # Dừng và đóng luồng
+        # Stop and close stream
         stream.stop_stream()
         stream.close()
         p.terminate()
 
-        # Trả về dữ liệu âm thanh dưới dạng byte
+        # Return audio data as bytes
         output = BytesIO()
         with wave.open(output, "wb") as wf:
             wf.setnchannels(CHANNELS)
             wf.setsampwidth(p.get_sample_size(FORMAT))
             wf.setframerate(SAMPLE_RATE)
             wf.writeframes(b"".join(frames))
-        output.seek(0)  # Đặt lại con trỏ về đầu file
+        output.seek(0)  # Reset pointer to the beginning of the file
         with open("output.wav", "wb") as f:
             f.write(output.getvalue())
         return output.getvalue()
