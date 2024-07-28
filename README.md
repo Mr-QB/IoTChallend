@@ -1,6 +1,6 @@
-# IoT Challend 2024 by Rcuet Team
+# IoT IoTChallenge 2024 by Rcuet Team
 
-This repository contains the source code for our smart home project developed for the IoT Challend 2024 contest. The project encompasses various smart home functionalities, including smart locks, smart switches, image recognition for fire and fall detection, a chatbot, and a Flutter application for system control and management.
+This repository contains the source code for our smart home project developed for the IoT IoTChallenge 2024 contest. The project encompasses various smart home functionalities, including smart locks, smart switches, image recognition for fire and fall detection, a chatbot, and a Flutter application for system control and management.
 
 ## Project Overview
 ![alt text](overviewSystem.png "overviewSystem")
@@ -41,8 +41,8 @@ This repository contains the source code for our smart home project developed fo
 - [**Server:**](HttpServer) Backend server code for managing data and device interactions.
 
 ## Acknowledgements
-* Thanks to the IoT Challend 2024 organizers for providing this platform.
+* Thanks to the IoT Challenge 2024 organizers for providing this platform.
 * Special thanks to the Rcuet team members for their hard work and dedication.
 
 ## Note
-This code was developed for the IoT Challend 2024 contest and is not fully polished. It is intended for personal memory storage and may not be suitable for production use.
+This code was developed for the IoT Challenge 2024 contest and is not fully polished. It is intended for personal memory storage and may not be suitable for production use.
