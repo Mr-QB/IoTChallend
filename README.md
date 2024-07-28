@@ -37,7 +37,7 @@ This repository contains the source code for our smart home project developed fo
 - [**Firmware:**](Devices) Code for ESP32 handling smart lock mechanisms and smart switches.
 - [**ImageRecognition:**](ImageRecognition) Scripts for fire and fall detection and face recognition using camera feeds.
 - [**Chatbot:**](DialogflowCX) Code for the chatbot functionality.
--[**FlutterApp:**](MobileApp) Flutter application code for controlling the smart home system.
+- [**FlutterApp:**](MobileApp) Flutter application code for controlling the smart home system.
 - [**Server:**](HttpServer) Backend server code for managing data and device interactions.
 
 ## Acknowledgements
