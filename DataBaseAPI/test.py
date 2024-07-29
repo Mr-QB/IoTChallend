@@ -7,9 +7,9 @@ from random import randint
 
 # Kết nối tới MongoDB
 client = MongoClient("mongodb://localhost:27017/")
-db = client["RcuetProject"]  # Tên cơ sở dữ liệu của bạn
-face_collection = db["faces_data"]  # Tên bộ sưu tập của bạn
-devices_collection = db["Devices"]  # Tên bộ sưu tập của bạn
+db = client["RcuetProject"]  
+face_collection = db["faces_data"]  
+devices_collection = db["Devices"]  
 
 id = randint(1000, 5000)
 cursor = devices_collection.find({})
